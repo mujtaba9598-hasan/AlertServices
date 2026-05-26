@@ -745,12 +745,9 @@ footer p {
   }
   .mini-book-cover p { display: none; } /* Hide "Hover to read" */
 
-  /* Move ALL floating dice to a neat, thumb-friendly vertical toolbar on the bottom right */
+  /* Position ALL utility dice absolutely in the corners so they scroll naturally and do not float over text */
   .easter-egg-dice, .perf-dice, .footer-dice-left, .footer-dice-right {
-    position: fixed !important;
-    right: 15px !important;
-    left: auto !important;
-    top: auto !important;
+    position: absolute !important;
     width: 44px !important;
     height: 44px !important;
     border-radius: 50% !important;
@@ -763,15 +760,35 @@ footer p {
     align-items: center !important;
     justify-content: center !important;
     margin: 0 !important;
-    z-index: 990 !important;
+    z-index: 10 !important;
     transform: none !important;
     font-size: 1.2rem !important;
     transition: all 0.3s ease !important;
   }
-  .perf-dice { bottom: 175px !important; }
-  .easter-egg-dice { bottom: 125px !important; }
-  .footer-dice-left { bottom: 75px !important; }
-  .footer-dice-right { bottom: 25px !important; }
+  .perf-dice {
+    top: 95px !important;
+    left: 15px !important;
+    right: auto !important;
+    bottom: auto !important;
+  }
+  .easter-egg-dice {
+    top: 95px !important;
+    right: 15px !important;
+    left: auto !important;
+    bottom: auto !important;
+  }
+  .footer-dice-left {
+    bottom: 15px !important;
+    left: 15px !important;
+    top: auto !important;
+    right: auto !important;
+  }
+  .footer-dice-right {
+    bottom: 15px !important;
+    right: 15px !important;
+    top: auto !important;
+    left: auto !important;
+  }
 }
 
 @media (max-width: 400px) {
