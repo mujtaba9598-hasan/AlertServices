@@ -763,7 +763,7 @@ footer p {
     align-items: center !important;
     justify-content: center !important;
     margin: 0 !important;
-    z-index: 10005 !important;
+    z-index: 990 !important;
     transform: none !important;
     font-size: 1.2rem !important;
     transition: all 0.3s ease !important;
