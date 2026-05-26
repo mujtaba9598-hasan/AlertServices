@@ -745,14 +745,33 @@ footer p {
   }
   .mini-book-cover p { display: none; } /* Hide "Hover to read" */
 
-  /* Move ALL floating dice completely off the screen and pin them absolutely to the top */
+  /* Move ALL floating dice to a neat, thumb-friendly vertical toolbar on the bottom right */
   .easter-egg-dice, .perf-dice, .footer-dice-left, .footer-dice-right {
-    position: absolute !important;
+    position: fixed !important;
+    right: 15px !important;
+    left: auto !important;
+    top: auto !important;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 50% !important;
+    background: rgba(10, 10, 10, 0.8) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(var(--lime-rgb), 0.3) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    z-index: 10005 !important;
+    transform: none !important;
+    font-size: 1.2rem !important;
+    transition: all 0.3s ease !important;
   }
-  .easter-egg-dice { top: 100px; right: 20px; bottom: auto; font-size: 1.2rem; }
-  .perf-dice { top: 100px; left: 20px; bottom: auto; right: auto; font-size: 1.2rem; }
-  .footer-dice-left { top: 160px; left: 20px; bottom: auto; right: auto; font-size: 1.2rem; }
-  .footer-dice-right { top: 160px; right: 20px; bottom: auto; left: auto; font-size: 1.2rem; }
+  .perf-dice { bottom: 175px !important; }
+  .easter-egg-dice { bottom: 125px !important; }
+  .footer-dice-left { bottom: 75px !important; }
+  .footer-dice-right { bottom: 25px !important; }
 }
 
 @media (max-width: 400px) {
@@ -1436,3 +1455,35 @@ body.no-logo-effects .logo-wrapper .logo-img {
   filter: saturate(0.2) brightness(0.7) !important;
 }
 
+/* CTA Button Styling */
+.cta-btn {
+  font-family: 'Orbitron', sans-serif;
+  background: var(--lime-green);
+  color: var(--bg-color);
+  border: 2px solid var(--lime-green);
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 8px 15px;
+  font-size: 0.85rem;
+  transition: var(--transition);
+  text-transform: uppercase;
+  box-shadow: 0 0 10px rgba(var(--lime-rgb), 0.3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  text-decoration: none;
+}
+
+.cta-btn:hover {
+  background: transparent;
+  color: var(--lime-green);
+  box-shadow: 0 0 20px rgba(var(--lime-rgb), 0.6);
+  transform: translateY(-2px);
+}
+
+.cta-btn i {
+  margin-right: 3px;
+  font-size: 0.9rem;
+}

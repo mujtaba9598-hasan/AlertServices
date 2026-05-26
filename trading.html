@@ -65,15 +65,15 @@
           <form onsubmit="postTrade(event)">
             <div style="margin-bottom: 15px;">
               <label style="display: block; margin-bottom: 5px; color: #fff;">Your Roblox Username</label>
-              <input type="text" id="trade-username" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid rgba(57,255,20,0.5); background: rgba(0,0,0,0.5); color: #fff;">
+              <input type="text" id="trade-username" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid rgba(var(--lime-rgb),0.5); background: rgba(0,0,0,0.5); color: #fff;">
             </div>
             <div style="margin-bottom: 15px;">
               <label style="display: block; margin-bottom: 5px; color: #fff;">You Are Trading</label>
-              <input type="text" id="trade-trading" placeholder="e.g. Kitsune, Perm Buddha" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid rgba(57,255,20,0.5); background: rgba(0,0,0,0.5); color: #fff;">
+              <input type="text" id="trade-trading" placeholder="e.g. Kitsune, Perm Buddha" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid rgba(var(--lime-rgb),0.5); background: rgba(0,0,0,0.5); color: #fff;">
             </div>
             <div style="margin-bottom: 20px;">
               <label style="display: block; margin-bottom: 5px; color: #fff;">You Are Looking For</label>
-              <input type="text" id="trade-looking" placeholder="e.g. 2x Dragon, Tiger" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid rgba(57,255,20,0.5); background: rgba(0,0,0,0.5); color: #fff;">
+              <input type="text" id="trade-looking" placeholder="e.g. 2x Dragon, Tiger" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid rgba(var(--lime-rgb),0.5); background: rgba(0,0,0,0.5); color: #fff;">
             </div>
             <button type="submit" class="cta-btn" style="width: 100%; border: none; font-family: 'Orbitron', sans-serif;">Submit Post</button>
           </form>
@@ -119,10 +119,10 @@
               cachedTrades.forEach(trade => {
                 const card = document.createElement('div');
                 card.className = 'card';
-                card.style.cssText = 'margin-bottom: 20px; padding: 25px; border-color: rgba(57,255,20,0.4); text-align: left; transition: var(--transition);';
+                card.style.cssText = 'margin-bottom: 20px; padding: 25px; border-color: rgba(var(--lime-rgb),0.4); text-align: left; transition: var(--transition);';
                 
                 const repliesListHtml = (trade.replies || []).map(reply => `
-                  <div style="background: rgba(255,255,255,0.03); padding: 12px 15px; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid var(--lime-green);">
+                  <div style="background: rgba(var(--lime-rgb), 0.05); padding: 12px 15px; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid var(--lime-green); border: 1px solid rgba(var(--lime-rgb), 0.1);">
                     <p style="font-size: 0.95rem; margin: 0; color: #fff;"><strong style="color: var(--lime-green);">${reply.username}:</strong> ${reply.text}</p>
                     <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 4px;"><i class="far fa-clock"></i> ${formatTimeAgo(reply.timestamp)}</span>
                   </div>
@@ -150,11 +150,11 @@
                   </div>
 
                   <!-- Reply form -->
-                  <div id="reply-form-${trade.id}" style="display: none; margin-top: 20px; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; border: 1px solid rgba(57,255,20,0.2);">
+                  <div id="reply-form-${trade.id}" style="display: none; margin-top: 20px; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; border: 1px solid rgba(var(--lime-rgb),0.2);">
                     <div style="display: flex; flex-direction: column; gap: 10px;">
-                      <input type="text" id="reply-username-${trade.id}" placeholder="Your Roblox Username" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid rgba(57,255,20,0.3); background: rgba(0,0,0,0.5); color: #fff; font-size: 0.85rem;">
+                      <input type="text" id="reply-username-${trade.id}" placeholder="Your Roblox Username" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid rgba(var(--lime-rgb),0.3); background: rgba(0,0,0,0.5); color: #fff; font-size: 0.85rem;">
                       <div style="display: flex; gap: 10px;">
-                        <input type="text" id="reply-text-${trade.id}" placeholder="Type your reply/offer..." required style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid rgba(57,255,20,0.3); background: rgba(0,0,0,0.5); color: #fff; font-size: 0.85rem;">
+                        <input type="text" id="reply-text-${trade.id}" placeholder="Type your reply/offer..." required style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid rgba(var(--lime-rgb),0.3); background: rgba(0,0,0,0.5); color: #fff; font-size: 0.85rem;">
                         <button class="cta-btn" style="padding: 8px 15px; font-size: 0.85rem; border: none;" onclick="submitReply('${trade.id}')">Send</button>
                       </div>
                     </div>
