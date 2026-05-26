@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Blox Fruits Trading Hub. Post your trades and find the fruits you need.">
+  <title>Trading Hub | ALERT SERVICES</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <!-- Easter Egg Dice -->
+  <div class="easter-egg-dice" onclick="rollDice()">
+    <i class="fas fa-dice-d20"></i>
+  </div>
+
+  <div class="background-container">
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+  </div>
+
+  <nav>
+    <a class='logo' href='index.html'><span class="logo-wrapper nav-logo"><img src="assets/images/logo.jpg" alt="ALERT SERVICES Logo" class="logo-img"></span>ALERT SERVICES</a>
+    <div class="menu-toggle"><i class="fas fa-bars"></i></div>
+    <ul class="nav-links">
+      <li><a href='index.html'>Home</a></li>
+      <li class="dropdown">
+        <a href="#">Services <i class="fas fa-caret-down"></i></a>
+        <ul class="dropdown-menu">
+          <li><a href='raids.html'>Raids</a></li>
+          <li><a href='trials.html'>V4 Trials</a></li>
+          <li><a href='sea-events.html'>Sea Events</a></li>
+          <li><a href='pvp-training.html'>PvP</a></li>
+          <li><a href='grinding.html'>Grinding</a></li>
+          <li><a href='titles.html'>Titles</a></li>
+        </ul>
+      </li>
+      <li><a class='active' href='trading.html'>Trading</a></li>
+      <li><a href='calculator.html'>Calculator</a></li>
+      <li><a href='why-us.html'>Why Us</a></li>
+      <li><a href='about.html'>About Us</a></li>
+      <li><a href='contact.html'>Contact</a></li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <h1 class="section-title" style="margin-top: 40px;">TRADING HUB</h1>
+    
+    <div style="display: flex; flex-wrap: wrap; gap: 30px;">
+      
+      <!-- Trade Board -->
+      <div style="flex: 2; min-width: 300px;">
+        <h2 style="color: var(--lime-green); margin-bottom: 20px;"><i class="fas fa-exchange-alt"></i> Active Trades</h2>
+        
+        <div id="trade-list">
+          <!-- Dynamically added trades will appear here -->
+        </div>
+      </div>
+
+      <!-- Post Trade Form -->
+      <div style="flex: 1; min-width: 300px;">
+        <div class="card" style="position: sticky; top: 100px;">
+          <h2 style="color: var(--lime-green); margin-bottom: 20px;"><i class="fas fa-plus-circle"></i> Post a Trade</h2>
+          <form onsubmit="postTrade(event)">
+            <div style="margin-bottom: 15px;">
+              <label style="display: block; margin-bottom: 5px; color: #fff;">Your Roblox Username</label>
+              <input type="text" id="trade-username" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid rgba(57,255,20,0.5); background: rgba(0,0,0,0.5); color: #fff;">
+            </div>
+            <div style="margin-bottom: 15px;">
+              <label style="display: block; margin-bottom: 5px; color: #fff;">You Are Trading</label>
+              <input type="text" id="trade-trading" placeholder="e.g. Kitsune, Perm Buddha" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid rgba(57,255,20,0.5); background: rgba(0,0,0,0.5); color: #fff;">
+            </div>
+            <div style="margin-bottom: 20px;">
+              <label style="display: block; margin-bottom: 5px; color: #fff;">You Are Looking For</label>
+              <input type="text" id="trade-looking" placeholder="e.g. 2x Dragon, Tiger" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid rgba(57,255,20,0.5); background: rgba(0,0,0,0.5); color: #fff;">
+            </div>
+            <button type="submit" class="cta-btn" style="width: 100%; border: none; font-family: 'Orbitron', sans-serif;">Submit Post</button>
+          </form>
+
+          <script>
+            const GLOBAL_DB_URL = 'https://api.restful-api.dev/objects/ff8081819d82fab6019e644bb8897f0c';
+            let cachedTrades = [];
+
+            // Format date relative helper
+            function formatTimeAgo(timestamp) {
+              const diff = Date.now() - timestamp;
+              const mins = Math.floor(diff / 60000);
+              if (mins < 1) return 'just now';
+              if (mins < 60) return `${mins}m ago`;
+              const hours = Math.floor(mins / 60);
+              if (hours < 24) return `${hours}h ago`;
+              const days = Math.floor(hours / 24);
+              return `${days}d ago`;
+            }
+
+            async function fetchGlobalTrades() {
+              try {
+                const res = await fetch(GLOBAL_DB_URL, { cache: 'no-store' });
+                if (!res.ok) return;
+                const json = await res.json();
+                cachedTrades = json.data?.trades || [];
+                renderTrades();
+              } catch (err) {
+                console.error("Failed to load global trades:", err);
+              }
+            }
+
+            function renderTrades() {
+              const tradeList = document.getElementById('trade-list');
+              if (!tradeList) return;
+              
+              if (cachedTrades.length === 0) {
+                tradeList.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">No active trades posted. Be the first to post!</div>';
+                return;
+              }
+              
+              tradeList.innerHTML = '';
+              cachedTrades.forEach(trade => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.style.cssText = 'margin-bottom: 20px; padding: 25px; border-color: rgba(57,255,20,0.4); text-align: left; transition: var(--transition);';
+                
+                const repliesListHtml = (trade.replies || []).map(reply => `
+                  <div style="background: rgba(255,255,255,0.03); padding: 12px 15px; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid var(--lime-green);">
+                    <p style="font-size: 0.95rem; margin: 0; color: #fff;"><strong style="color: var(--lime-green);">${reply.username}:</strong> ${reply.text}</p>
+                    <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 4px;"><i class="far fa-clock"></i> ${formatTimeAgo(reply.timestamp)}</span>
+                  </div>
+                `).join('');
+
+                card.innerHTML = `
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px;">
+                    <div style="flex: 1; min-width: 200px;">
+                      <h4 style="color: #fff; margin-bottom: 10px; font-size: 1.1rem; font-family: 'Orbitron', sans-serif;">
+                        <i class="fas fa-user-circle" style="color: var(--lime-green); margin-right: 5px;"></i> Roblox User: <span style="color: var(--lime-green);">${trade.username}</span>
+                      </h4>
+                      <p style="font-size: 1.05rem; margin: 5px 0;"><strong>Trading:</strong> <span style="color: #ff3939; font-weight: bold;">${trade.trading}</span></p>
+                      <p style="font-size: 1.05rem; margin: 5px 0;"><strong>Looking For:</strong> <span style="color: #ffd700; font-weight: bold;">${trade.lookingFor}</span></p>
+                      <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-top: 10px;"><i class="far fa-clock"></i> ${formatTimeAgo(trade.timestamp)}</span>
+                    </div>
+                    <div>
+                      <button class="cta-btn" style="padding: 8px 15px; font-size: 0.85rem;" onclick="toggleReplyForm('${trade.id}')"><i class="fas fa-reply"></i> Reply</button>
+                    </div>
+                  </div>
+                  
+                  <!-- Replies section -->
+                  <div class="replies-container" style="margin-top: 20px; padding-top: 15px; border-top: 1px dashed rgba(255,255,255,0.1); display: ${(trade.replies || []).length > 0 ? 'block' : 'none'};">
+                    <h5 style="color: var(--text-muted); margin-bottom: 12px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;"><i class="far fa-comments"></i> Replies (${(trade.replies || []).length})</h5>
+                    <div class="replies-list">${repliesListHtml}</div>
+                  </div>
+
+                  <!-- Reply form -->
+                  <div id="reply-form-${trade.id}" style="display: none; margin-top: 20px; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; border: 1px solid rgba(57,255,20,0.2);">
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                      <input type="text" id="reply-username-${trade.id}" placeholder="Your Roblox Username" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid rgba(57,255,20,0.3); background: rgba(0,0,0,0.5); color: #fff; font-size: 0.85rem;">
+                      <div style="display: flex; gap: 10px;">
+                        <input type="text" id="reply-text-${trade.id}" placeholder="Type your reply/offer..." required style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid rgba(57,255,20,0.3); background: rgba(0,0,0,0.5); color: #fff; font-size: 0.85rem;">
+                        <button class="cta-btn" style="padding: 8px 15px; font-size: 0.85rem; border: none;" onclick="submitReply('${trade.id}')">Send</button>
+                      </div>
+                    </div>
+                  </div>
+                `;
+                
+                tradeList.appendChild(card);
+              });
+            }
+
+            function toggleReplyForm(tradeId) {
+              const form = document.getElementById(`reply-form-${tradeId}`);
+              if (form) {
+                form.style.display = form.style.display === 'none' ? 'block' : 'none';
+                if(window.AudioEngine) window.AudioEngine.playSFX('click');
+              }
+            }
+
+            async function submitReply(tradeId) {
+              const usernameInput = document.getElementById(`reply-username-${tradeId}`);
+              const textInput = document.getElementById(`reply-text-${tradeId}`);
+              
+              if (!usernameInput || !textInput) return;
+              
+              const username = usernameInput.value.trim().replace(/</g, "&lt;");
+              const text = textInput.value.trim().replace(/</g, "&lt;");
+              
+              if (!username || !text) {
+                alert("Please fill in both fields!");
+                return;
+              }
+              
+              if(window.AudioEngine) window.AudioEngine.playSFX('click');
+              
+              try {
+                // Fetch latest trades
+                const res = await fetch(GLOBAL_DB_URL);
+                const json = await res.json();
+                let trades = json.data?.trades || [];
+                
+                // Find matching trade
+                const trade = trades.find(t => t.id === tradeId);
+                if (trade) {
+                  if (!trade.replies) trade.replies = [];
+                  trade.replies.push({
+                    username,
+                    text,
+                    timestamp: Date.now()
+                  });
+                  
+                  // Update DB
+                  const updateRes = await fetch(GLOBAL_DB_URL, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0' },
+                    body: JSON.stringify({
+                      name: "AlertServiceTrades2026",
+                      data: { trades }
+                    })
+                  });
+                  
+                  if (updateRes.ok) {
+                    usernameInput.value = '';
+                    textInput.value = '';
+                    cachedTrades = trades;
+                    renderTrades();
+                  } else {
+                    alert("Failed to submit reply. Please try again.");
+                  }
+                }
+              } catch (err) {
+                console.error(err);
+                alert("Network error occurred while submitting reply.");
+              }
+            }
+
+            async function postTrade(event) {
+              event.preventDefault();
+              
+              const username = document.getElementById('trade-username').value.trim().replace(/</g, "&lt;");
+              const trading = document.getElementById('trade-trading').value.trim().replace(/</g, "&lt;");
+              const lookingFor = document.getElementById('trade-looking').value.trim().replace(/</g, "&lt;");
+              
+              const submitBtn = event.target.querySelector('button[type="submit"]');
+              submitBtn.disabled = true;
+              submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
+              
+              if(window.AudioEngine) window.AudioEngine.playSFX('click');
+              
+              try {
+                // Fetch latest trades
+                const res = await fetch(GLOBAL_DB_URL);
+                const json = await res.json();
+                let trades = json.data?.trades || [];
+                
+                const newTrade = {
+                  id: 'trade_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                  username,
+                  trading,
+                  lookingFor,
+                  timestamp: Date.now(),
+                  replies: []
+                };
+                
+                trades.unshift(newTrade);
+                
+                // Limit to top 30 trades
+                if (trades.length > 30) trades = trades.slice(0, 30);
+                
+                // Update DB
+                const updateRes = await fetch(GLOBAL_DB_URL, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0' },
+                  body: JSON.stringify({
+                    name: "AlertServiceTrades2026",
+                    data: { trades }
+                  })
+                });
+                
+                if (updateRes.ok) {
+                  event.target.reset();
+                  cachedTrades = trades;
+                  renderTrades();
+                } else {
+                  alert("Failed to post trade. Please try again.");
+                }
+              } catch (err) {
+                console.error(err);
+                alert("Network error occurred while posting trade.");
+              } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Submit Post';
+              }
+            }
+
+            // Polling initialization
+            fetchGlobalTrades();
+            setInterval(fetchGlobalTrades, 8000); // check updates every 8 seconds
+          </script>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="text-align: center; margin-top: 40px; margin-bottom: 20px;">
+      <a href="https://discord.gg/KJk9vJHhd" target="_blank" class="btn btn-outline" style="font-size: 1.2rem; padding: 15px 30px;"><i class="fas fa-ticket-alt"></i> Open Ticket for Service</a>
+    </div>
+  </div>
+
+  <footer>
+    <span class="logo-wrapper footer-logo"><img src="assets/images/logo.jpg" alt="ALERT SERVICES Logo" class="logo-img"></span>
+    <p style="color: var(--lime-green); margin-bottom: 10px; font-weight: bold; font-size: 1.1rem;"><i class="fas fa-undo-alt"></i> Refund Policy: 100% Refunds available up to 12 hours after payment.</p>
+    <p>&copy; 2026 ALERT SERVICES. Not affiliated with Roblox or Gamer Robot Inc.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

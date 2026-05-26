@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="About Alert Service and how you can support the platform.">
+  <title>About Us | Alert Service</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <!-- Easter Egg Dice -->
+  <div class="easter-egg-dice" onclick="rollDice()">
+    <i class="fas fa-dice-d20"></i>
+  </div>
+
+  <!-- Navigation placeholder -->
+  <nav>
+    <a class='logo' href='/'>Alert Service</a>
+    <div class="status-indicator">
+      <span class="status-dot available"></span> Available
+    </div>
+    <div class="menu-toggle"><i class="fas fa-bars"></i></div>
+    <ul class="nav-links">
+      <li><a href='/'>Home</a></li>
+      <li class="dropdown">
+        <a href="#">Services <i class="fas fa-caret-down"></i></a>
+        <ul class="dropdown-menu">
+          <li><a href='/raids'>Raids</a></li>
+          <li><a href='/trials'>V4 Trials</a></li>
+          <li><a href='/sea-events'>Sea Events</a></li>
+          <li><a href='/pvp-training'>PvP</a></li>
+          <li><a href='/grinding'>Grinding</a></li>
+          <li><a href='/titles'>Titles</a></li>
+        </ul>
+      </li>
+      <li><a href='/trading'>Trading</a></li>
+      <li><a href='/calculator'>Calculator</a></li>
+      <li><a href='/why-us'>Why Us</a></li>
+      <li><a class='active' href='/about'>About Us</a></li>
+      <li><a href='/contact'>Contact</a></li>
+    </ul>
+  </nav>
+
+  <div class="container fade-in" style="margin-top: 40px;">
+    <h1 class="section-title">ABOUT US</h1>
+    
+    <div class="card" style="margin-bottom: 50px; text-align: left; max-width: 900px; margin-left: auto; margin-right: auto;">
+      <h3 style="color: var(--lime-green); margin-bottom: 20px; font-size: 1.8rem;">Our Mission</h3>
+      <p style="font-size: 1.2rem; margin-bottom: 15px;">Alert Service was founded with a single goal: to provide the most reliable, efficient, and trustworthy boosting and community platform for Blox Fruits players.</p>
+      <p style="font-size: 1.2rem; margin-bottom: 15px;">We noticed the community was filled with scammers and unreliable services. That's why we built a vetted team of experts who use 100% safe, in-game methods to help you achieve your goals.</p>
+      <p style="font-size: 1.2rem;">Whether you need V4 Trials, Raid Carries, or just a place to hang out and trade safely, Alert Service is your home.</p>
+      
+      <p style="font-size: 1.2rem; margin-top: 30px; font-style: italic; color: var(--text-muted); text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 20px;">
+        "I'm <a href='/easter-egg-hints' style='color: inherit; text-decoration: none; cursor: default;'>Alerted</a> of every move you'll make"
+      </p>
+    </div>
+
+    <!-- Donation Section -->
+    <section class="donation-section">
+      <h2 class="section-title" style="color: #ffd700; text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);">Support the Platform</h2>
+      <div class="donation-card card" style="border-color: #ffd700; max-width: 800px; margin: 0 auto; box-shadow: 0 0 20px rgba(255, 215, 0, 0.15); text-align: center;">
+        <i class="fas fa-gift" style="color: #ffd700; font-size: 4rem; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(255,215,0,0.5));"></i>
+        <h3 style="margin-bottom: 15px; font-size: 1.8rem;">Voluntary Support</h3>
+        <p style="font-size: 1.2rem; margin-bottom: 20px;">Love what we do? You can support Alert Service voluntarily!</p>
+        <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 20px;">Donations of permanent fruits or gamepasses help us grow the community, host giveaways, and maintain the highest quality of service.</p>
+        <a class='btn' href='/contact' style='background: transparent; border: 2px solid #ffd700; color: #ffd700;'>Donate via Discord</a>
+        <p style="margin-top: 25px; font-weight: bold; font-size: 1.3rem; color: var(--lime-green);">Thank you for your support!</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p style="color: var(--lime-green); margin-bottom: 15px; font-weight: bold; font-size: 1.1rem;">
+      <i class="fas fa-undo-alt"></i> Refund Policy: 100% Refunds available up to 12 hours after payment.
+    </p>
+    <p>&copy; 2026 Alert Service. Not affiliated with Roblox or Gamer Robot Inc.</p>
+  </footer>
+
+  <div class="secret-green-lamp" title="Touch Green Lamp"><i class="fas fa-lightbulb"></i></div>
+  <script src="script.js"></script>
+</body>
+</html>
