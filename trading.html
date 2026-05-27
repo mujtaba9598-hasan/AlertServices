@@ -287,14 +287,17 @@
                 return;
               }
               
-              // Bot Verification Puzzle
-              const num1 = Math.floor(Math.random() * 8) + 2;
-              const num2 = Math.floor(Math.random() * 8) + 2;
-              const challengeAnswer = prompt(`Solve this puzzle to verify you are a human:\n${num1} + ${num2} = ?`);
-              if (challengeAnswer === null) return;
-              if (parseInt(challengeAnswer.trim()) !== (num1 + num2)) {
-                alert("Verification failed! Reply cancelled.");
-                return;
+              // Bot Verification Puzzle (solved once per session)
+              if (sessionStorage.getItem('alert_captcha_solved') !== 'true') {
+                const num1 = Math.floor(Math.random() * 8) + 2;
+                const num2 = Math.floor(Math.random() * 8) + 2;
+                const challengeAnswer = prompt(`Solve this puzzle to verify you are a human:\n${num1} + ${num2} = ?`);
+                if (challengeAnswer === null) return;
+                if (parseInt(challengeAnswer.trim()) !== (num1 + num2)) {
+                  alert("Verification failed! Reply cancelled.");
+                  return;
+                }
+                sessionStorage.setItem('alert_captcha_solved', 'true');
               }
               
               if(window.AudioEngine) window.AudioEngine.playSFX('click');
@@ -357,20 +360,23 @@
               submitBtn.disabled = true;
               submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
               
-              // Bot Verification Puzzle
-              const num1 = Math.floor(Math.random() * 8) + 2;
-              const num2 = Math.floor(Math.random() * 8) + 2;
-              const challengeAnswer = prompt(`Solve this puzzle to verify you are a human:\n${num1} + ${num2} = ?`);
-              if (challengeAnswer === null) {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = 'Submit Post';
-                return;
-              }
-              if (parseInt(challengeAnswer.trim()) !== (num1 + num2)) {
-                alert("Verification failed! Post cancelled.");
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = 'Submit Post';
-                return;
+              // Bot Verification Puzzle (solved once per session)
+              if (sessionStorage.getItem('alert_captcha_solved') !== 'true') {
+                const num1 = Math.floor(Math.random() * 8) + 2;
+                const num2 = Math.floor(Math.random() * 8) + 2;
+                const challengeAnswer = prompt(`Solve this puzzle to verify you are a human:\n${num1} + ${num2} = ?`);
+                if (challengeAnswer === null) {
+                  submitBtn.disabled = false;
+                  submitBtn.innerHTML = 'Submit Post';
+                  return;
+                }
+                if (parseInt(challengeAnswer.trim()) !== (num1 + num2)) {
+                  alert("Verification failed! Post cancelled.");
+                  submitBtn.disabled = false;
+                  submitBtn.innerHTML = 'Submit Post';
+                  return;
+                }
+                sessionStorage.setItem('alert_captcha_solved', 'true');
               }
               
               if(window.AudioEngine) window.AudioEngine.playSFX('click');
