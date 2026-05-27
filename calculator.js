@@ -1,5 +1,6 @@
 let currentTarget = 'offer';
 let currentCategory = 'Fruits';
+let searchQuery = '';
 let tradeState = {
   offer: [],
   receive: []
@@ -19,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   populateFruitList();
+  parseUrlParams();
 });
 
 function setSelectorTarget(target) {
@@ -30,6 +32,11 @@ function setSelectorTarget(target) {
 
 function setCategory(category) {
   currentCategory = category;
+  
+  // Clear search on category switch
+  searchQuery = "";
+  const searchInput = document.getElementById('fruit-search');
+  if (searchInput) searchInput.value = "";
   
   // Reset all category buttons
   const catButtons = document.querySelectorAll('.category-tabs .btn');
@@ -49,13 +56,25 @@ function setCategory(category) {
   populateFruitList();
 }
 
+function handleSearch(query) {
+  searchQuery = query.toLowerCase().trim();
+  populateFruitList();
+}
+
 function populateFruitList() {
   const container = document.getElementById('fruit-list');
   container.innerHTML = '';
   
   const items = window.tradeItems[currentCategory] || [];
+  let matchesCount = 0;
   
   items.forEach((item, index) => {
+    // Filter by search query
+    if (searchQuery && !item.name.toLowerCase().includes(searchQuery)) {
+      return;
+    }
+    matchesCount++;
+    
     const el = document.createElement('div');
     el.className = 'fruit-item';
     
@@ -75,6 +94,10 @@ function populateFruitList() {
     el.onclick = () => addFruit(index);
     container.appendChild(el);
   });
+
+  if (matchesCount === 0) {
+    container.innerHTML = `<div style="grid-column: 1 / -1; color: var(--text-muted); padding: 25px 10px; text-align: center; font-size: 1rem; font-family: 'Orbitron', sans-serif;"><i class="fas fa-search-minus" style="margin-right: 8px; color: var(--lime-green);"></i> No items matching "${searchQuery}" found.</div>`;
+  }
 }
 
 function addFruit(index) {
@@ -175,5 +198,71 @@ function calculateResult() {
     wflText.style.color = "#ffd700"; // gold
     diffBar.className = 'diff-bar';
     diffBar.style.backgroundColor = "#ffd700";
+  }
+}
+
+function generateShareLink() {
+  const offerNames = tradeState.offer.map(item => encodeURIComponent(item.name)).join(',');
+  const receiveNames = tradeState.receive.map(item => encodeURIComponent(item.name)).join(',');
+  
+  if (!offerNames && !receiveNames) {
+    alert("Add some items to your offer or receive list first to share!");
+    return;
+  }
+  
+  const queryParams = [];
+  if (offerNames) queryParams.push(`offer=${offerNames}`);
+  if (receiveNames) queryParams.push(`receive=${receiveNames}`);
+  
+  const shareUrl = window.location.origin + window.location.pathname + '?' + queryParams.join('&');
+  
+  navigator.clipboard.writeText(shareUrl).then(() => {
+    if(window.AudioEngine) window.AudioEngine.playSFX('click');
+    alert("Shareable link copied to clipboard:\n" + shareUrl);
+  }).catch(err => {
+    console.error("Failed to copy link:", err);
+    alert("Could not copy link automatically. Here is the URL:\n" + shareUrl);
+  });
+}
+
+function parseUrlParams() {
+  const params = new URLSearchParams(window.location.search);
+  const offerParam = params.get('offer');
+  const receiveParam = params.get('receive');
+  
+  let hasItems = false;
+  
+  const findItemByName = (name) => {
+    for (const cat in window.tradeItems) {
+      const found = window.tradeItems[cat].find(item => item.name.toLowerCase() === name.toLowerCase().trim());
+      if (found) return found;
+    }
+    return null;
+  };
+  
+  if (offerParam) {
+    const names = offerParam.split(',');
+    names.forEach(name => {
+      const item = findItemByName(decodeURIComponent(name));
+      if (item && tradeState.offer.length < 4) {
+        tradeState.offer.push(item);
+        hasItems = true;
+      }
+    });
+  }
+  
+  if (receiveParam) {
+    const names = receiveParam.split(',');
+    names.forEach(name => {
+      const item = findItemByName(decodeURIComponent(name));
+      if (item && tradeState.receive.length < 4) {
+        tradeState.receive.push(item);
+        hasItems = true;
+      }
+    });
+  }
+  
+  if (hasItems) {
+    updateUI();
   }
 }

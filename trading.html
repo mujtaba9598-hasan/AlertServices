@@ -3,8 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Blox Fruits Trading Hub. Post your trades and find the fruits you need.">
-  <title>Trading Hub | ALERT SERVICES</title>
+  <meta name="description" content="Blox Fruits Trading Hub. Post your trades, find active offers, and vote on W/F/L deals with the Alert Services community.">
+  <meta name="keywords" content="blox fruits trading, blox fruits trades, roblox trading hub, alert services trades">
+  <title>Blox Fruits Trading Hub | ALERT SERVICES</title>
+  
+  <!-- OpenGraph / Discord Card -->
+  <meta property="og:title" content="Blox Fruits Trading Hub - ALERT SERVICES">
+  <meta property="og:description" content="Post your trades, reply to offers, and check community feedback instantly.">
+  <meta property="og:image" content="assets/images/logo.jpg">
+  <meta property="og:type" content="website">
+
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -101,6 +109,11 @@
                 const json = await res.json();
                 cachedTrades = json.data?.trades || [];
                 renderTrades();
+                
+                if (!window.hasHighlightedUrlTrade) {
+                  checkUrlForTradeHighlight();
+                  window.hasHighlightedUrlTrade = true;
+                }
               } catch (err) {
                 console.error("Failed to load global trades:", err);
               }
@@ -115,10 +128,13 @@
                 return;
               }
               
+              const userVotes = JSON.parse(localStorage.getItem('alert_trade_votes') || '{}');
+              
               tradeList.innerHTML = '';
               cachedTrades.forEach(trade => {
                 const card = document.createElement('div');
                 card.className = 'card';
+                card.id = trade.id;
                 card.style.cssText = 'margin-bottom: 20px; padding: 25px; border-color: rgba(var(--lime-rgb),0.4); text-align: left; transition: var(--transition);';
                 
                 const repliesListHtml = (trade.replies || []).map(reply => `
@@ -127,6 +143,21 @@
                     <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 4px;"><i class="far fa-clock"></i> ${formatTimeAgo(reply.timestamp)}</span>
                   </div>
                 `).join('');
+
+                const activeVote = userVotes[trade.id] || null;
+                const votes = trade.votes || { win: 0, fair: 0, lose: 0 };
+                
+                const winStyle = activeVote === 'win' 
+                  ? 'background: var(--lime-green); color: #000; border: 1px solid var(--lime-green);' 
+                  : 'background: rgba(57, 255, 20, 0.05); color: var(--lime-green); border: 1px solid rgba(57, 255, 20, 0.3);';
+
+                const fairStyle = activeVote === 'fair'
+                  ? 'background: #ffd700; color: #000; border: 1px solid #ffd700;'
+                  : 'background: rgba(255, 215, 0, 0.05); color: #ffd700; border: 1px solid rgba(255, 215, 0, 0.3);';
+
+                const loseStyle = activeVote === 'lose'
+                  ? 'background: #ff3939; color: #fff; border: 1px solid #ff3939;'
+                  : 'background: rgba(255, 57, 57, 0.05); color: #ff3939; border: 1px solid rgba(255, 57, 57, 0.3);';
 
                 card.innerHTML = `
                   <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px;">
@@ -137,9 +168,24 @@
                       <p style="font-size: 1.05rem; margin: 5px 0;"><strong>Trading:</strong> <span style="color: #ff3939; font-weight: bold;">${trade.trading}</span></p>
                       <p style="font-size: 1.05rem; margin: 5px 0;"><strong>Looking For:</strong> <span style="color: #ffd700; font-weight: bold;">${trade.lookingFor}</span></p>
                       <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-top: 10px;"><i class="far fa-clock"></i> ${formatTimeAgo(trade.timestamp)}</span>
+                      
+                      <!-- W/F/L Voting Section -->
+                      <div class="wfl-voting" style="margin-top: 15px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-family: 'Orbitron', sans-serif;">Rate Deal:</span>
+                        <button onclick="voteTrade('${trade.id}', 'win')" style="${winStyle} padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; cursor: pointer; font-family: 'Orbitron', sans-serif; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 4px;">
+                          <i class="fas fa-arrow-up"></i> Win (${votes.win || 0})
+                        </button>
+                        <button onclick="voteTrade('${trade.id}', 'fair')" style="${fairStyle} padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; cursor: pointer; font-family: 'Orbitron', sans-serif; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 4px;">
+                          <i class="fas fa-equals"></i> Fair (${votes.fair || 0})
+                        </button>
+                        <button onclick="voteTrade('${trade.id}', 'lose')" style="${loseStyle} padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; cursor: pointer; font-family: 'Orbitron', sans-serif; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 4px;">
+                          <i class="fas fa-arrow-down"></i> Lose (${votes.lose || 0})
+                        </button>
+                      </div>
                     </div>
-                    <div>
-                      <button class="cta-btn" style="padding: 8px 15px; font-size: 0.85rem;" onclick="toggleReplyForm('${trade.id}')"><i class="fas fa-reply"></i> Reply</button>
+                    <div style="display: flex; gap: 8px;">
+                      <button class="cta-btn" style="padding: 8px 12px; font-size: 0.85rem;" onclick="copyTradeLink('${trade.id}')"><i class="fas fa-share-alt"></i> Share</button>
+                      <button class="cta-btn" style="padding: 8px 12px; font-size: 0.85rem;" onclick="toggleReplyForm('${trade.id}')"><i class="fas fa-reply"></i> Reply</button>
                     </div>
                   </div>
                   
@@ -286,6 +332,86 @@
               } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = 'Submit Post';
+              }
+            }
+
+            async function voteTrade(tradeId, type) {
+              if (window.AudioEngine) window.AudioEngine.playSFX('click');
+              
+              let localVotes = JSON.parse(localStorage.getItem('alert_trade_votes') || '{}');
+              const prevVote = localVotes[tradeId] || null;
+              
+              try {
+                const res = await fetch(GLOBAL_DB_URL);
+                if (!res.ok) return;
+                const json = await res.json();
+                let trades = json.data?.trades || [];
+                
+                const trade = trades.find(t => t.id === tradeId);
+                if (trade) {
+                  if (!trade.votes) {
+                    trade.votes = { win: 0, fair: 0, lose: 0 };
+                  }
+                  
+                  if (prevVote === type) {
+                    trade.votes[type] = Math.max(0, (trade.votes[type] || 0) - 1);
+                    delete localVotes[tradeId];
+                  } else {
+                    if (prevVote) {
+                      trade.votes[prevVote] = Math.max(0, (trade.votes[prevVote] || 0) - 1);
+                    }
+                    trade.votes[type] = (trade.votes[type] || 0) + 1;
+                    localVotes[tradeId] = type;
+                  }
+                  
+                  const updateRes = await fetch(GLOBAL_DB_URL, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0' },
+                    body: JSON.stringify({
+                      name: "AlertServiceTrades2026",
+                      data: { trades }
+                    })
+                  });
+                  
+                  if (updateRes.ok) {
+                    localStorage.setItem('alert_trade_votes', JSON.stringify(localVotes));
+                    cachedTrades = trades;
+                    renderTrades();
+                  }
+                }
+              } catch (err) {
+                console.error("Voting error:", err);
+              }
+            }
+
+            function copyTradeLink(tradeId) {
+              if (window.AudioEngine) window.AudioEngine.playSFX('click');
+              const shareUrl = window.location.origin + window.location.pathname + '?trade=' + tradeId;
+              
+              navigator.clipboard.writeText(shareUrl).then(() => {
+                alert("Direct trade link copied to clipboard:\n" + shareUrl);
+              }).catch(err => {
+                console.error("Failed to copy link:", err);
+                alert("Could not copy link automatically. Here is the URL:\n" + shareUrl);
+              });
+            }
+
+            function checkUrlForTradeHighlight() {
+              const params = new URLSearchParams(window.location.search);
+              const tradeId = params.get('trade');
+              if (tradeId) {
+                setTimeout(() => {
+                  const card = document.getElementById(tradeId);
+                  if (card) {
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    card.style.borderColor = 'var(--lime-green)';
+                    card.style.boxShadow = '0 0 25px rgba(var(--lime-rgb), 0.8)';
+                    
+                    setTimeout(() => {
+                      card.style.boxShadow = '';
+                    }, 3000);
+                  }
+                }, 800);
               }
             }
 

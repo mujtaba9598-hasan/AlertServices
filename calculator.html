@@ -3,8 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Blox Fruits Trading Calculator. Check if your trade is a Win, Fair, or Lose.">
-  <title>Trading Calculator | ALERT SERVICES</title>
+  <meta name="description" content="Blox Fruits Trading Calculator. Check if your trade is a Win, Fair, or Lose (W/F/L) using our values database and share your results.">
+  <meta name="keywords" content="blox fruits calculator, blox fruits wfl, blox fruits trade calculator, alert services calculator">
+  <title>Blox Fruits W/F/L Trading Calculator | ALERT SERVICES</title>
+  
+  <!-- OpenGraph / Discord Card -->
+  <meta property="og:title" content="Blox Fruits W/F/L Trading Calculator - ALERT SERVICES">
+  <meta property="og:description" content="Calculate and share trade values instantly to see if your deal is a Win, Fair, or Lose.">
+  <meta property="og:image" content="assets/images/logo.jpg">
+  <meta property="og:type" content="website">
+
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -170,6 +178,10 @@
       color: var(--lime-green);
       border-bottom: 2px solid var(--lime-green);
     }
+    #fruit-search:focus {
+      border-color: var(--lime-green) !important;
+      box-shadow: 0 0 10px rgba(var(--lime-rgb), 0.5);
+    }
   </style>
 </head>
 <body>
@@ -243,6 +255,9 @@
       <div class="diff-bar-container">
         <div class="diff-bar" id="diff-bar"></div>
       </div>
+      <div style="margin-top: 20px;">
+        <button class="cta-btn" onclick="generateShareLink()" style="font-size: 0.9rem; padding: 10px 20px; border: none; font-family: 'Orbitron', sans-serif;"><i class="fas fa-share-alt"></i> Share W/F/L Deal</button>
+      </div>
     </div>
 
     <div class="fruit-selector">
@@ -256,6 +271,12 @@
         <button class="btn btn-outline" id="cat-Permanent Fruits" onclick="setCategory('Permanent Fruits')" style="padding: 8px 15px; font-size: 0.9rem; flex: 1; min-width: max-content;">Permanent Fruits</button>
         <button class="btn btn-outline" id="cat-Gamepasses" onclick="setCategory('Gamepasses')" style="padding: 8px 15px; font-size: 0.9rem; flex: 1; min-width: max-content;">Gamepasses</button>
         <button class="btn btn-outline" id="cat-Skins" onclick="setCategory('Skins')" style="padding: 8px 15px; font-size: 0.9rem; flex: 1; min-width: max-content;">Scrolls & Skins</button>
+      </div>
+      
+      <!-- Interactive Search Bar -->
+      <div style="margin-bottom: 20px; position: relative;">
+        <i class="fas fa-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1rem;"></i>
+        <input type="text" id="fruit-search" placeholder="Search fruits, gamepasses, skins..." oninput="handleSearch(this.value)" style="width: 100%; padding: 12px 12px 12px 45px; border-radius: 6px; border: 1px solid rgba(var(--lime-rgb),0.3); background: rgba(0,0,0,0.5); color: #fff; font-family: 'Orbitron', sans-serif; font-size: 0.95rem; outline: none; transition: var(--transition);">
       </div>
 
       <div class="fruit-grid" id="fruit-list">
