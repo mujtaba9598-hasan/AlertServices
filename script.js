@@ -1157,6 +1157,11 @@ document.addEventListener('DOMContentLoaded', () => {
     modalOverlay.classList.add('active');
   };
 
+  window.openModal = openModal;
+  window.closeModal = () => {
+    modalOverlay.classList.remove('active');
+  };
+
   modalClose.addEventListener('click', () => {
     modalOverlay.classList.remove('active');
   });
@@ -1265,4 +1270,81 @@ document.addEventListener('DOMContentLoaded', () => {
     
     openModal('Detailed Statistics', html);
   });
+
+  // --- Sign In & Verification Challenge Logic ---
+  const injectNavbarSignIn = () => {
+    const navLinksList = document.querySelector('.nav-links');
+    if (!navLinksList) return;
+    
+    const savedUser = localStorage.getItem('alert_username');
+    if (savedUser) {
+      navLinksList.insertAdjacentHTML('beforeend', `
+        <li class="signin-item"><a href="#" id="nav-user-btn" style="color: var(--lime-green); font-weight: bold;"><i class="fas fa-user-circle"></i> ${savedUser}</a></li>
+        <li class="signin-item"><a href="#" id="nav-logout-btn" title="Log Out" style="opacity: 0.7; padding-left: 5px;"><i class="fas fa-sign-out-alt"></i></a></li>
+      `);
+      
+      const userBtn = document.getElementById('nav-user-btn');
+      if (userBtn) {
+        userBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          window.AudioEngine.playSFX('click');
+          openModal('Roblox Profile', `
+            <div style="text-align: left; font-family: 'Orbitron', sans-serif;">
+              <h3 style="color: var(--lime-green); margin-bottom: 15px;"><i class="fas fa-user-circle"></i> Roblox Profile</h3>
+              <p style="margin: 10px 0;"><strong>Username:</strong> ${savedUser}</p>
+              <p style="margin: 10px 0;"><strong>Verified Local:</strong> Yes (Saved on Device)</p>
+              <button onclick="window.closeModal()" class="cta-btn" style="width: 100%; border: none; margin-top: 15px;">Close</button>
+            </div>
+          `);
+        });
+      }
+      
+      const logoutBtn = document.getElementById('nav-logout-btn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          window.AudioEngine.playSFX('click');
+          localStorage.removeItem('alert_username');
+          location.reload();
+        });
+      }
+    } else {
+      navLinksList.insertAdjacentHTML('beforeend', `
+        <li class="signin-item"><a href="#" id="nav-signin-btn"><i class="fas fa-sign-in-alt"></i> Sign In</a></li>
+      `);
+      
+      const signinBtn = document.getElementById('nav-signin-btn');
+      if (signinBtn) {
+        signinBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          window.AudioEngine.playSFX('click');
+          openModal('Sign In with Roblox', `
+            <div style="text-align: left; font-family: 'Orbitron', sans-serif;">
+              <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 15px;">Enter your Roblox username to sign in. This saves your username locally so you don't have to keep typing it when posting trades or replying.</p>
+              <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; color: #fff;">Roblox Username</label>
+                <input type="text" id="signin-username" placeholder="e.g. Builderman" style="width: 100%; padding: 12px; border-radius: 5px; border: 1px solid rgba(var(--lime-rgb),0.5); background: rgba(0,0,0,0.5); color: #fff; font-family: 'Orbitron', sans-serif; outline: none;">
+              </div>
+              <button onclick="submitSignIn()" class="cta-btn" style="width: 100%; border: none;">Sign In</button>
+            </div>
+          `);
+        });
+      }
+    }
+  };
+  
+  injectNavbarSignIn();
+  
+  window.submitSignIn = () => {
+    const input = document.getElementById('signin-username');
+    if (!input) return;
+    const username = input.value.trim().replace(/</g, "&lt;");
+    if (!username) {
+      alert("Please enter a valid Roblox username!");
+      return;
+    }
+    localStorage.setItem('alert_username', username);
+    window.closeModal();
+    location.reload();
+  };
 });

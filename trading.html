@@ -189,6 +189,11 @@
                   ? 'background: #ff3939; color: #fff; border: 1px solid #ff3939;'
                   : 'background: rgba(255, 57, 57, 0.05); color: #ff3939; border: 1px solid rgba(255, 57, 57, 0.3);';
 
+                const savedUser = localStorage.getItem('alert_username');
+                const replyUsernameHtml = savedUser
+                  ? `<input type="text" id="reply-username-${trade.id}" value="${savedUser}" readonly style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid rgba(var(--lime-rgb),0.3); background: rgba(0,0,0,0.5); color: #fff; font-size: 0.85rem; opacity: 0.7;">`
+                  : `<input type="text" id="reply-username-${trade.id}" placeholder="Your Roblox Username (Sign in recommended)" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid rgba(var(--lime-rgb),0.3); background: rgba(0,0,0,0.5); color: #fff; font-size: 0.85rem;">`;
+
                 card.innerHTML = `
                   <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px;">
                     <div style="flex: 1; min-width: 200px;">
@@ -228,7 +233,7 @@
                   <!-- Reply form -->
                   <div id="reply-form-${trade.id}" style="display: none; margin-top: 20px; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; border: 1px solid rgba(var(--lime-rgb),0.2);">
                     <div style="display: flex; flex-direction: column; gap: 10px;">
-                      <input type="text" id="reply-username-${trade.id}" placeholder="Your Roblox Username" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid rgba(var(--lime-rgb),0.3); background: rgba(0,0,0,0.5); color: #fff; font-size: 0.85rem;">
+                      ${replyUsernameHtml}
                       <div style="display: flex; gap: 10px;">
                         <input type="text" id="reply-text-${trade.id}" placeholder="Type your reply/offer..." required style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid rgba(var(--lime-rgb),0.3); background: rgba(0,0,0,0.5); color: #fff; font-size: 0.85rem;">
                         <button class="cta-btn" style="padding: 8px 15px; font-size: 0.85rem; border: none;" onclick="submitReply('${trade.id}')">Send</button>
@@ -250,6 +255,12 @@
             }
 
             async function submitReply(tradeId) {
+              const savedUser = localStorage.getItem('alert_username');
+              if (!savedUser) {
+                alert("You must be Signed In to submit a reply!");
+                return;
+              }
+
               const usernameInput = document.getElementById(`reply-username-${tradeId}`);
               const textInput = document.getElementById(`reply-text-${tradeId}`);
               
@@ -260,6 +271,16 @@
               
               if (!username || !text) {
                 alert("Please fill in both fields!");
+                return;
+              }
+              
+              // Bot Verification Puzzle
+              const num1 = Math.floor(Math.random() * 8) + 2;
+              const num2 = Math.floor(Math.random() * 8) + 2;
+              const challengeAnswer = prompt(`Solve this puzzle to verify you are a human:\n${num1} + ${num2} = ?`);
+              if (challengeAnswer === null) return;
+              if (parseInt(challengeAnswer.trim()) !== (num1 + num2)) {
+                alert("Verification failed! Reply cancelled.");
                 return;
               }
               
@@ -309,6 +330,12 @@
             async function postTrade(event) {
               event.preventDefault();
               
+              const savedUser = localStorage.getItem('alert_username');
+              if (!savedUser) {
+                alert("You must be Signed In to post a trade!");
+                return;
+              }
+              
               const username = document.getElementById('trade-username').value.trim().replace(/</g, "&lt;");
               const trading = document.getElementById('trade-trading').value.trim().replace(/</g, "&lt;");
               const lookingFor = document.getElementById('trade-looking').value.trim().replace(/</g, "&lt;");
@@ -316,6 +343,22 @@
               const submitBtn = event.target.querySelector('button[type="submit"]');
               submitBtn.disabled = true;
               submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
+              
+              // Bot Verification Puzzle
+              const num1 = Math.floor(Math.random() * 8) + 2;
+              const num2 = Math.floor(Math.random() * 8) + 2;
+              const challengeAnswer = prompt(`Solve this puzzle to verify you are a human:\n${num1} + ${num2} = ?`);
+              if (challengeAnswer === null) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Submit Post';
+                return;
+              }
+              if (parseInt(challengeAnswer.trim()) !== (num1 + num2)) {
+                alert("Verification failed! Post cancelled.");
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Submit Post';
+                return;
+              }
               
               if(window.AudioEngine) window.AudioEngine.playSFX('click');
               
@@ -444,6 +487,20 @@
                 }, 800);
               }
             }
+
+            // Autofill username if signed in
+            function fillUsernameOnLoad() {
+              const savedUser = localStorage.getItem('alert_username');
+              if (savedUser) {
+                const usernameInput = document.getElementById('trade-username');
+                if (usernameInput) {
+                  usernameInput.value = savedUser;
+                  usernameInput.readOnly = true;
+                  usernameInput.style.opacity = '0.7';
+                }
+              }
+            }
+            fillUsernameOnLoad();
 
             // Polling initialization
             fetchGlobalTrades();
