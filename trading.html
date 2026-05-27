@@ -15,6 +15,12 @@
 
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    #trade-search:focus {
+      border-color: var(--lime-green) !important;
+      box-shadow: 0 0 10px rgba(var(--lime-rgb), 0.5);
+    }
+  </style>
 </head>
 <body>
   <!-- Easter Egg Dice -->
@@ -60,6 +66,12 @@
       <!-- Trade Board -->
       <div style="flex: 2; min-width: 300px;">
         <h2 style="color: var(--lime-green); margin-bottom: 20px;"><i class="fas fa-exchange-alt"></i> Active Trades</h2>
+        
+        <!-- Search Active Trades -->
+        <div style="margin-bottom: 20px; position: relative;">
+          <i class="fas fa-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1rem;"></i>
+          <input type="text" id="trade-search" placeholder="Search active trades by user or items..." oninput="handleTradeSearch(this.value)" style="width: 100%; padding: 12px 12px 12px 45px; border-radius: 6px; border: 1px solid rgba(var(--lime-rgb),0.3); background: rgba(0,0,0,0.5); color: #fff; font-family: 'Orbitron', sans-serif; font-size: 0.95rem; outline: none; transition: var(--transition);">
+        </div>
         
         <div id="trade-list">
           <!-- Dynamically added trades will appear here -->
@@ -119,19 +131,37 @@
               }
             }
 
+            let tradeSearchQuery = "";
+            function handleTradeSearch(query) {
+              tradeSearchQuery = query.toLowerCase().trim();
+              renderTrades();
+            }
+
             function renderTrades() {
               const tradeList = document.getElementById('trade-list');
               if (!tradeList) return;
               
-              if (cachedTrades.length === 0) {
-                tradeList.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">No active trades posted. Be the first to post!</div>';
+              const filteredTrades = cachedTrades.filter(trade => {
+                if (!tradeSearchQuery) return true;
+                const query = tradeSearchQuery;
+                return (
+                  (trade.username || '').toLowerCase().includes(query) ||
+                  (trade.trading || '').toLowerCase().includes(query) ||
+                  (trade.lookingFor || '').toLowerCase().includes(query)
+                );
+              });
+              
+              if (filteredTrades.length === 0) {
+                tradeList.innerHTML = tradeSearchQuery 
+                  ? `<div style="color: var(--text-muted); text-align: center; padding: 20px;">No active trades matching "${tradeSearchQuery}" found.</div>`
+                  : '<div style="color: var(--text-muted); text-align: center; padding: 20px;">No active trades posted. Be the first to post!</div>';
                 return;
               }
               
               const userVotes = JSON.parse(localStorage.getItem('alert_trade_votes') || '{}');
               
               tradeList.innerHTML = '';
-              cachedTrades.forEach(trade => {
+              filteredTrades.forEach(trade => {
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.id = trade.id;
