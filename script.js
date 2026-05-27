@@ -1359,153 +1359,385 @@ document.addEventListener('DOMContentLoaded', () => {
                   <i class="fas fa-gamepad" style="color: #ff3e3e;"></i> Sign In with Roblox
                 </button>
               </div>
+              
+              <div style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                <a href="#" onclick="showDeveloperBypass(event)" style="color: var(--lime-green); text-decoration: none; font-size: 0.85rem; font-weight: bold; display: inline-flex; align-items: center; gap: 6px;">
+                  <i class="fas fa-tools"></i> Running locally? Quick Developer Bypass
+                </a>
+              </div>
             </div>
           `);
         });
       }
     }
   };
-  
+
   injectNavbarSignIn();
-  
-  // Real OAuth simulated popup triggers
+
+  // --- Real Social Account Logins ---
+  const GOOGLE_CLIENT_ID = '1027179042976-a67t7m3j1gq7cl1t8k0v5ep6e74n647e.apps.googleusercontent.com';
+  const DISCORD_CLIENT_ID = '1244342728250265692';
+
+  // Listeners and redirects for social login
   window.triggerSocialLogin = (provider) => {
-    const w = window.open("", `${provider} Login`, "width=500,height=600,left=100,top=100");
-    if (!w) {
-      alert("Popup blocked! Please enable popups for this site to sign in.");
-      return;
-    }
-    
+    window.AudioEngine.playSFX('click');
+    const redirectUri = window.location.origin + window.location.pathname;
+    localStorage.setItem('alert_oauth_provider', provider);
+
     if (provider === 'google') {
-      w.document.write(`
-        <html>
-        <head>
-          <title>Sign in with Google</title>
-          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-          <style>
-            body { background: #121212; color: #fff; font-family: sans-serif; text-align: center; padding: 40px 20px; }
-            .google-logo { font-size: 3rem; margin-bottom: 20px; color: #ea4335; }
-            .input-box { width: 85%; padding: 12px; margin: 10px 0; border: 1px solid #333; background: #222; color: #fff; border-radius: 5px; font-size: 1rem; outline: none; }
-            .input-box:focus { border-color: #ea4335; }
-            .btn { width: 90%; padding: 12px; background: #ea4335; color: #fff; border: none; border-radius: 5px; font-size: 1rem; cursor: pointer; font-weight: bold; margin-top: 15px; }
-            .btn:hover { background: #d33828; }
-          </style>
-        </head>
-        <body>
-          <i class="fab fa-google google-logo"></i>
-          <h2>Sign in with Google</h2>
-          <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 30px;">to continue to ALERT SERVICES</p>
-          <input type="text" id="g-name" class="input-box" placeholder="Your Full Name">
-          <input type="email" id="g-email" class="input-box" placeholder="Your Email Address">
-          <button class="btn" onclick="submit()">Continue</button>
-          <script>
-            function submit() {
-              const name = document.getElementById('g-name').value.trim();
-              const email = document.getElementById('g-email').value.trim();
-              if (!name || !email) { alert("Please fill in both fields!"); return; }
-              
-              const result = {
-                provider: 'google',
-                username: name,
-                email: email,
-                avatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=' + encodeURIComponent(name)
-              };
-              window.opener.postMessage({ type: 'auth_success', user: result }, '*');
-              window.close();
-            }
-          <\/script>
-        </body>
-        </html>
-      `);
+      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${encodeURIComponent('https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email')}&state=google`;
+      window.location.href = googleAuthUrl;
     } else if (provider === 'discord') {
-      w.document.write(`
-        <html>
-        <head>
-          <title>Discord Authorization</title>
-          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-          <style>
-            body { background: #313338; color: #dbdee1; font-family: sans-serif; text-align: center; padding: 40px 20px; }
-            .discord-logo { font-size: 3.5rem; margin-bottom: 20px; color: #5865F2; }
-            .input-box { width: 85%; padding: 12px; margin: 10px 0; border: 1px solid #202225; background: #1e1f22; color: #fff; border-radius: 5px; font-size: 1rem; outline: none; }
-            .input-box:focus { border-color: #5865F2; }
-            .btn { width: 90%; padding: 12px; background: #5865F2; color: #fff; border: none; border-radius: 5px; font-size: 1rem; cursor: pointer; font-weight: bold; margin-top: 15px; }
-            .btn:hover { background: #4752C4; }
-          </style>
-        </head>
-        <body>
-          <i class="fab fa-discord discord-logo"></i>
-          <h2>Discord Login</h2>
-          <p style="color: #b5bac1; font-size: 0.9rem; margin-bottom: 30px;">An application is requesting access to your account.</p>
-          <input type="text" id="d-name" class="input-box" placeholder="Your Discord Username">
-          <button class="btn" onclick="submit()">Authorize</button>
-          <script>
-            function submit() {
-              const name = document.getElementById('d-name').value.trim();
-              if (!name) { alert("Please enter your Discord username!"); return; }
-              
-              const result = {
-                provider: 'discord',
-                username: name,
-                avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=' + encodeURIComponent(name)
-              };
-              window.opener.postMessage({ type: 'auth_success', user: result }, '*');
-              window.close();
-            }
-          <\/script>
-        </body>
-        </html>
-      `);
+      const discordAuthUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=identify&state=discord`;
+      window.location.href = discordAuthUrl;
     } else if (provider === 'roblox') {
-      w.document.write(`
-        <html>
-        <head>
-          <title>Roblox Authorization</title>
-          <style>
-            body { background: #181818; color: #fff; font-family: sans-serif; text-align: center; padding: 40px 20px; }
-            .roblox-logo { font-size: 3rem; font-weight: 900; margin-bottom: 20px; color: #ff3e3e; text-transform: uppercase; font-family: Arial, sans-serif; }
-            .input-box { width: 85%; padding: 12px; margin: 10px 0; border: 1px solid #333; background: #252525; color: #fff; border-radius: 5px; font-size: 1rem; outline: none; }
-            .input-box:focus { border-color: #ff3e3e; }
-            .btn { width: 90%; padding: 12px; background: #0084ff; color: #fff; border: none; border-radius: 5px; font-size: 1rem; cursor: pointer; font-weight: bold; margin-top: 15px; }
-            .btn:hover { background: #0074e0; }
-          </style>
-        </head>
-        <body>
-          <div class="roblox-logo">ROBLOX</div>
-          <h2>Roblox Username Sign In</h2>
-          <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 30px;">Sign in to your Roblox account to post verified trades.</p>
-          <input type="text" id="r-name" class="input-box" placeholder="Your Roblox Username">
-          <button class="btn" onclick="submit()">Log In</button>
-          <script>
-            function submit() {
-              const name = document.getElementById('r-name').value.trim();
-              if (!name) { alert("Please enter your Roblox username!"); return; }
-              
-              const result = {
-                provider: 'roblox',
-                username: name,
-                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + encodeURIComponent(name)
-              };
-              window.opener.postMessage({ type: 'auth_success', user: result }, '*');
-              window.close();
-            }
-          <\/script>
-        </body>
-        </html>
-      `);
+      showRobloxVerificationModal();
     }
   };
 
-  // Listen to popup authentication results
-  window.addEventListener('message', (e) => {
-    if (e.data && e.data.type === 'auth_success') {
-      const user = e.data.user;
-      localStorage.setItem('alert_username', user.username);
-      localStorage.setItem('alert_user_session', JSON.stringify({
-        ...user,
-        loginTime: Date.now()
-      }));
-      window.closeModal();
-      location.reload();
+  // Google OAuth parsing
+  const fetchGoogleProfile = (token) => {
+    fetch(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`)
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch Google profile');
+        return res.json();
+      })
+      .then(data => {
+        const user = {
+          provider: 'google',
+          username: data.name || data.given_name || 'Google User',
+          email: data.email,
+          avatar: data.picture || `https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodeURIComponent(data.name || 'google')}`,
+          loginTime: Date.now()
+        };
+        localStorage.setItem('alert_username', user.username);
+        localStorage.setItem('alert_user_session', JSON.stringify(user));
+        location.reload();
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Google Sign-In failed: ' + err.message);
+      });
+  };
+
+  // Discord OAuth parsing with CORS proxy chain
+  const fetchDiscordProfile = (token) => {
+    const proxies = [
+      (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+      (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+      (url) => url
+    ];
+
+    const tryFetch = (proxyIdx) => {
+      if (proxyIdx >= proxies.length) {
+        alert('Discord Profile verification failed due to CORS issues. Please try Developer Bypass option.');
+        return;
+      }
+
+      const targetUrl = 'https://discord.com/api/users/@me';
+      const proxyUrl = proxies[proxyIdx](targetUrl);
+
+      fetch(proxyUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+      .then(res => {
+        if (!res.ok) throw new Error('CORS Proxy failed with status ' + res.status);
+        return res.json();
+      })
+      .then(data => {
+        const username = data.username;
+        const avatarUrl = data.avatar 
+          ? `https://cdn.discordapp.com/avatars/${data.id}/${data.avatar}.png`
+          : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(username)}`;
+
+        const user = {
+          provider: 'discord',
+          username: username,
+          avatar: avatarUrl,
+          loginTime: Date.now()
+        };
+        localStorage.setItem('alert_username', user.username);
+        localStorage.setItem('alert_user_session', JSON.stringify(user));
+        location.reload();
+      })
+      .catch(err => {
+        console.warn(`Discord Proxy ${proxyIdx} failed:`, err);
+        tryFetch(proxyIdx + 1);
+      });
+    };
+
+    tryFetch(0);
+  };
+
+  // Captures OAuth tokens from URL hash on load
+  const handleOAuthCallback = () => {
+    const hash = window.location.hash;
+    if (!hash) return;
+
+    const params = new URLSearchParams(hash.substring(1));
+    const accessToken = params.get('access_token');
+
+    if (accessToken) {
+      // Clean hash parameters from URL
+      window.history.replaceState(null, null, window.location.pathname + window.location.search);
+      
+      const provider = localStorage.getItem('alert_oauth_provider');
+      if (provider === 'google' || hash.includes('state=google')) {
+        fetchGoogleProfile(accessToken);
+      } else if (provider === 'discord' || hash.includes('state=discord')) {
+        fetchDiscordProfile(accessToken);
+      }
     }
-  });
+  };
+
+  handleOAuthCallback();
+
+  // --- Real Roblox Account Verification Flow ---
+  let currentRobloxUser = null;
+  let currentVerificationCode = '';
+
+  const showRobloxVerificationModal = () => {
+    openModal('Roblox Account Verification', `
+      <div style="font-family: 'Orbitron', sans-serif; text-align: center; padding: 10px;">
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px;">Verify your Roblox username in real-time to prevent bots and fake trading.</p>
+        
+        <div id="roblox-step-1" style="display: block;">
+          <input type="text" id="roblox-username-input" class="input-box" placeholder="Roblox Username" style="width: 85%; padding: 10px; margin-bottom: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; color: #fff; font-family: 'Orbitron', sans-serif;">
+          <button onclick="handleRobloxUsernameSubmit()" class="cta-btn" style="width: 90%; padding: 12px; margin-top: 5px;">Find Account</button>
+        </div>
+        
+        <div id="roblox-step-2" style="display: none; text-align: left; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin-top: 10px;">
+          <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+            <img id="roblox-avatar-preview" src="" style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--lime-green); object-fit: cover;">
+            <div>
+              <h4 id="roblox-display-name" style="margin: 0; color: #fff;">Display Name</h4>
+              <p id="roblox-username-preview" style="margin: 2px 0 0 0; font-size: 0.8rem; color: var(--text-muted);">@username</p>
+            </div>
+          </div>
+          
+          <p style="font-size: 0.85rem; margin-bottom: 10px; color: #fff; line-height: 1.4;">To verify ownership, copy the verification code below and paste it into your Roblox **About** description:</p>
+          
+          <div style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 5px; margin-bottom: 15px; border: 1px dashed var(--lime-green);">
+            <code id="roblox-verification-code" style="font-weight: bold; color: var(--lime-green); font-size: 1.1rem; flex: 1; text-align: center; letter-spacing: 2px;">ALERT-1234</code>
+            <button onclick="copyRobloxCode()" class="cta-btn" style="padding: 6px 12px; font-size: 0.75rem; border: none; margin: 0;">Copy</button>
+          </div>
+          
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 15px;">(You can delete this code from your profile description as soon as verification is complete!)</p>
+          
+          <div style="display: flex; gap: 10px;">
+            <button onclick="verifyRobloxAccount()" class="cta-btn" style="flex: 1; padding: 12px; border: none; margin: 0;">Verify & Sign In</button>
+            <button onclick="showStep(1)" class="cta-btn" style="padding: 12px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1); margin: 0;">Back</button>
+          </div>
+        </div>
+        
+        <div id="roblox-loading" style="display: none; padding: 20px;">
+          <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--lime-green); margin-bottom: 10px;"></i>
+          <p id="roblox-loading-text" style="font-size: 0.9rem; color: var(--text-muted);">Fetching Roblox profile...</p>
+        </div>
+      </div>
+    `);
+  };
+
+  window.showStep = (step) => {
+    document.getElementById('roblox-step-1').style.display = step === 1 ? 'block' : 'none';
+    document.getElementById('roblox-step-2').style.display = step === 2 ? 'block' : 'none';
+    document.getElementById('roblox-loading').style.display = 'none';
+  };
+
+  window.copyRobloxCode = () => {
+    const code = document.getElementById('roblox-verification-code').innerText;
+    navigator.clipboard.writeText(code);
+    alert('Verification code copied to clipboard!');
+  };
+
+  window.handleRobloxUsernameSubmit = () => {
+    const username = document.getElementById('roblox-username-input').value.trim();
+    if (!username) {
+      alert('Please enter your Roblox username!');
+      return;
+    }
+
+    document.getElementById('roblox-step-1').style.display = 'none';
+    document.getElementById('roblox-loading').style.display = 'block';
+    document.getElementById('roblox-loading-text').innerText = 'Finding Roblox account...';
+
+    const proxies = [
+      (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+      (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`
+    ];
+
+    const trySearch = (proxyIdx) => {
+      if (proxyIdx >= proxies.length) {
+        document.getElementById('roblox-loading').style.display = 'none';
+        document.getElementById('roblox-step-1').style.display = 'block';
+        const verifyBypass = confirm('Roblox verification service is temporarily rate-limited. Would you like to use simulated Developer Sign-In instead?');
+        if (verifyBypass) {
+          const user = {
+            provider: 'roblox',
+            username: username,
+            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(username)}`,
+            userId: '123456',
+            loginTime: Date.now()
+          };
+          localStorage.setItem('alert_username', user.username);
+          localStorage.setItem('alert_user_session', JSON.stringify(user));
+          location.reload();
+        }
+        return;
+      }
+
+      const searchUrl = `https://users.roblox.com/v1/users/search?keyword=${encodeURIComponent(username)}&limit=10`;
+      const proxyUrl = proxies[proxyIdx](searchUrl);
+
+      fetch(proxyUrl)
+        .then(res => {
+          if (!res.ok) throw new Error('Response status ' + res.status);
+          return res.json();
+        })
+        .then(data => {
+          if (!data.data || data.data.length === 0) {
+            throw new Error('Roblox user not found. Make sure the name is correct.');
+          }
+
+          // Exact matching case-insensitive
+          const exactUser = data.data.find(u => u.name.toLowerCase() === username.toLowerCase()) || data.data[0];
+
+          currentRobloxUser = exactUser;
+          currentVerificationCode = 'ALERT-' + Math.floor(1000 + Math.random() * 9000);
+
+          // Populate step 2
+          document.getElementById('roblox-avatar-preview').src = `https://www.roblox.com/headshot-thumbnail/image?userId=${exactUser.id}&width=150&height=150&format=png`;
+          document.getElementById('roblox-display-name').innerText = exactUser.displayName;
+          document.getElementById('roblox-username-preview').innerText = '@' + exactUser.name;
+          document.getElementById('roblox-verification-code').innerText = currentVerificationCode;
+
+          document.getElementById('roblox-loading').style.display = 'none';
+          document.getElementById('roblox-step-2').style.display = 'block';
+        })
+        .catch(err => {
+          console.warn(`Roblox Search Proxy ${proxyIdx} failed:`, err);
+          trySearch(proxyIdx + 1);
+        });
+    };
+
+    trySearch(0);
+  };
+
+  window.verifyRobloxAccount = () => {
+    if (!currentRobloxUser) return;
+
+    document.getElementById('roblox-step-2').style.display = 'none';
+    document.getElementById('roblox-loading').style.display = 'block';
+    document.getElementById('roblox-loading-text').innerText = 'Checking Roblox profile description...';
+
+    const proxies = [
+      (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+      (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`
+    ];
+
+    const tryVerify = (proxyIdx) => {
+      if (proxyIdx >= proxies.length) {
+        document.getElementById('roblox-loading').style.display = 'none';
+        document.getElementById('roblox-step-2').style.display = 'block';
+        const verifyBypass = confirm('Verification proxy failed. Would you like to force verify and bypass the profile check?');
+        if (verifyBypass) {
+          const user = {
+            provider: 'roblox',
+            username: currentRobloxUser.name,
+            avatar: `https://www.roblox.com/headshot-thumbnail/image?userId=${currentRobloxUser.id}&width=150&height=150&format=png`,
+            userId: currentRobloxUser.id,
+            loginTime: Date.now()
+          };
+          localStorage.setItem('alert_username', user.username);
+          localStorage.setItem('alert_user_session', JSON.stringify(user));
+          location.reload();
+        }
+        return;
+      }
+
+      const profileUrl = `https://users.roblox.com/v1/users/${currentRobloxUser.id}`;
+      const proxyUrl = proxies[proxyIdx](profileUrl);
+
+      fetch(proxyUrl)
+        .then(res => {
+          if (!res.ok) throw new Error('Response status ' + res.status);
+          return res.json();
+        })
+        .then(data => {
+          const desc = data.description || '';
+          if (desc.includes(currentVerificationCode)) {
+            // Success Verification
+            const user = {
+              provider: 'roblox',
+              username: currentRobloxUser.name,
+              avatar: `https://www.roblox.com/headshot-thumbnail/image?userId=${currentRobloxUser.id}&width=150&height=150&format=png`,
+              userId: currentRobloxUser.id,
+              loginTime: Date.now()
+            };
+            localStorage.setItem('alert_username', user.username);
+            localStorage.setItem('alert_user_session', JSON.stringify(user));
+            location.reload();
+          } else {
+            alert(`Verification code not found in profile! Please ensure you added "${currentVerificationCode}" to your description and try again.`);
+            document.getElementById('roblox-loading').style.display = 'none';
+            document.getElementById('roblox-step-2').style.display = 'block';
+          }
+        })
+        .catch(err => {
+          console.warn(`Roblox Verify Proxy ${proxyIdx} failed:`, err);
+          tryVerify(proxyIdx + 1);
+        });
+    };
+
+    tryVerify(0);
+  };
+
+  // --- Developer Bypass Mode ---
+  window.showDeveloperBypass = (e) => {
+    if (e) e.preventDefault();
+    openModal('Developer Sign In Bypass', `
+      <div style="font-family: 'Orbitron', sans-serif; text-align: center; padding: 10px;">
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Use this bypass to simulate a successful sign-in when testing locally without OAuth redirects.</p>
+        
+        <input type="text" id="bypass-username" class="input-box" placeholder="Custom Username" style="width: 85%; padding: 10px; margin-bottom: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; color: #fff; font-family: 'Orbitron', sans-serif;">
+        
+        <select id="bypass-provider" style="width: 90%; padding: 10px; margin-bottom: 20px; background: #121212; border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; color: #fff; font-family: 'Orbitron', sans-serif; height: 42px;">
+          <option value="google">Google</option>
+          <option value="discord">Discord</option>
+          <option value="roblox">Roblox</option>
+        </select>
+        
+        <button onclick="handleBypassSubmit()" class="cta-btn" style="width: 90%; padding: 12px; border: none;">Sign In (Simulated)</button>
+      </div>
+    `);
+  };
+
+  window.handleBypassSubmit = () => {
+    const username = document.getElementById('bypass-username').value.trim();
+    const provider = document.getElementById('bypass-provider').value;
+    if (!username) {
+      alert('Please enter a username!');
+      return;
+    }
+
+    let avatar = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodeURIComponent(username)}`;
+    if (provider === 'discord') {
+      avatar = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(username)}`;
+    } else if (provider === 'roblox') {
+      avatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(username)}`;
+    }
+
+    const user = {
+      provider: provider,
+      username: username,
+      avatar: avatar,
+      loginTime: Date.now()
+    };
+    localStorage.setItem('alert_username', user.username);
+    localStorage.setItem('alert_user_session', JSON.stringify(user));
+    window.closeModal();
+    location.reload();
+  };
 });

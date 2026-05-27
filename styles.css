@@ -166,10 +166,6 @@ nav {
 
 /* Status Indicator */
 .status-indicator {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translate(-50%, 15px);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -181,8 +177,10 @@ nav {
   border-radius: 20px;
   border: 1px solid rgba(var(--lime-rgb), 0.3);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-  z-index: 999;
+  z-index: 99;
   transition: var(--transition);
+  width: max-content;
+  margin: 15px auto 0 auto;
 }
 
 .status-dot {
@@ -636,7 +634,7 @@ footer p {
     /* Keep visible and slightly adjust font size/padding for mobile */
     font-size: 0.75rem;
     padding: 5px 10px;
-    transform: translate(-50%, 10px);
+    margin: 10px auto 0 auto;
   }
   .menu-toggle {
     display: block;
