@@ -1276,10 +1276,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const navLinksList = document.querySelector('.nav-links');
     if (!navLinksList) return;
     
+    // Remove existing sign-in elements if any
+    const existingItems = navLinksList.querySelectorAll('.signin-item');
+    existingItems.forEach(item => item.remove());
+    
     const savedUser = localStorage.getItem('alert_username');
-    if (savedUser) {
+    const sessionData = localStorage.getItem('alert_user_session');
+    
+    if (savedUser && sessionData) {
+      const user = JSON.parse(sessionData);
+      const providerIcon = user.provider === 'google' ? 'fab fa-google' :
+                           user.provider === 'discord' ? 'fab fa-discord' : 'fas fa-gamepad';
+      
+      const providerColor = user.provider === 'google' ? '#ea4335' :
+                            user.provider === 'discord' ? '#5865F2' : '#ff3e3e';
+      
       navLinksList.insertAdjacentHTML('beforeend', `
-        <li class="signin-item"><a href="#" id="nav-user-btn" style="color: var(--lime-green); font-weight: bold;"><i class="fas fa-user-circle"></i> ${savedUser}</a></li>
+        <li class="signin-item" style="display: flex; align-items: center;">
+          <a href="#" id="nav-user-btn" style="color: var(--lime-green); font-weight: bold; display: flex; align-items: center; gap: 8px;">
+            <img src="${user.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=guest'}" style="width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--lime-green); object-fit: cover;">
+            <i class="${providerIcon}" style="color: ${providerColor}; font-size: 0.85rem;"></i> ${user.username}
+          </a>
+        </li>
         <li class="signin-item"><a href="#" id="nav-logout-btn" title="Log Out" style="opacity: 0.7; padding-left: 5px;"><i class="fas fa-sign-out-alt"></i></a></li>
       `);
       
@@ -1288,12 +1306,19 @@ document.addEventListener('DOMContentLoaded', () => {
         userBtn.addEventListener('click', (e) => {
           e.preventDefault();
           window.AudioEngine.playSFX('click');
-          openModal('Roblox Profile', `
-            <div style="text-align: left; font-family: 'Orbitron', sans-serif;">
-              <h3 style="color: var(--lime-green); margin-bottom: 15px;"><i class="fas fa-user-circle"></i> Roblox Profile</h3>
-              <p style="margin: 10px 0;"><strong>Username:</strong> ${savedUser}</p>
-              <p style="margin: 10px 0;"><strong>Verified Local:</strong> Yes (Saved on Device)</p>
-              <button onclick="window.closeModal()" class="cta-btn" style="width: 100%; border: none; margin-top: 15px;">Close</button>
+          
+          const loginDate = user.loginTime ? new Date(user.loginTime).toLocaleString() : 'Just now';
+          openModal('User Profile', `
+            <div style="text-align: center; font-family: 'Orbitron', sans-serif; padding: 10px;">
+              <img src="${user.avatar}" style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--lime-green); margin-bottom: 15px; box-shadow: 0 0 15px rgba(var(--lime-rgb),0.4);">
+              <h3 style="color: var(--lime-green); margin-bottom: 10px;">${user.username}</h3>
+              <p style="margin: 8px 0; color: var(--text-muted);"><i class="${providerIcon}" style="color: ${providerColor}; margin-right: 5px;"></i> Signed in via ${user.provider.toUpperCase()}</p>
+              ${user.email ? `<p style="margin: 8px 0; font-size: 0.9rem; color: var(--text-muted);">${user.email}</p>` : ''}
+              <div style="border-top: 1px dashed rgba(255,255,255,0.1); margin-top: 15px; padding-top: 15px; text-align: left;">
+                <p style="margin: 6px 0; font-size: 0.9rem;"><strong>Session Started:</strong> ${loginDate}</p>
+                <p style="margin: 6px 0; font-size: 0.9rem;"><strong>Account Status:</strong> Verified Human</p>
+              </div>
+              <button onclick="window.closeModal()" class="cta-btn" style="width: 100%; border: none; margin-top: 20px;">Close Profile</button>
             </div>
           `);
         });
@@ -1305,6 +1330,7 @@ document.addEventListener('DOMContentLoaded', () => {
           e.preventDefault();
           window.AudioEngine.playSFX('click');
           localStorage.removeItem('alert_username');
+          localStorage.removeItem('alert_user_session');
           location.reload();
         });
       }
@@ -1318,14 +1344,21 @@ document.addEventListener('DOMContentLoaded', () => {
         signinBtn.addEventListener('click', (e) => {
           e.preventDefault();
           window.AudioEngine.playSFX('click');
-          openModal('Sign In with Roblox', `
-            <div style="text-align: left; font-family: 'Orbitron', sans-serif;">
-              <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 15px;">Enter your Roblox username to sign in. This saves your username locally so you don't have to keep typing it when posting trades or replying.</p>
-              <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; color: #fff;">Roblox Username</label>
-                <input type="text" id="signin-username" placeholder="e.g. Builderman" style="width: 100%; padding: 12px; border-radius: 5px; border: 1px solid rgba(var(--lime-rgb),0.5); background: rgba(0,0,0,0.5); color: #fff; font-family: 'Orbitron', sans-serif; outline: none;">
+          openModal('Sign In Options', `
+            <div style="text-align: center; font-family: 'Orbitron', sans-serif;">
+              <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">Sign in securely to Alert Services to verify you are human and unlock trading.</p>
+              
+              <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
+                <button onclick="triggerSocialLogin('google')" class="cta-btn" style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; background: #ea4335; color: #fff; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.95rem; font-family: 'Orbitron', sans-serif;">
+                  <i class="fab fa-google"></i> Sign In with Google
+                </button>
+                <button onclick="triggerSocialLogin('discord')" class="cta-btn" style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; background: #5865F2; color: #fff; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.95rem; font-family: 'Orbitron', sans-serif;">
+                  <i class="fab fa-discord"></i> Sign In with Discord
+                </button>
+                <button onclick="triggerSocialLogin('roblox')" class="cta-btn" style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; background: #232527; border: 1px solid #ff3e3e; color: #fff; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.95rem; font-family: 'Orbitron', sans-serif;">
+                  <i class="fas fa-gamepad" style="color: #ff3e3e;"></i> Sign In with Roblox
+                </button>
               </div>
-              <button onclick="submitSignIn()" class="cta-btn" style="width: 100%; border: none;">Sign In</button>
             </div>
           `);
         });
@@ -1335,16 +1368,144 @@ document.addEventListener('DOMContentLoaded', () => {
   
   injectNavbarSignIn();
   
-  window.submitSignIn = () => {
-    const input = document.getElementById('signin-username');
-    if (!input) return;
-    const username = input.value.trim().replace(/</g, "&lt;");
-    if (!username) {
-      alert("Please enter a valid Roblox username!");
+  // Real OAuth simulated popup triggers
+  window.triggerSocialLogin = (provider) => {
+    const w = window.open("", `${provider} Login`, "width=500,height=600,left=100,top=100");
+    if (!w) {
+      alert("Popup blocked! Please enable popups for this site to sign in.");
       return;
     }
-    localStorage.setItem('alert_username', username);
-    window.closeModal();
-    location.reload();
+    
+    if (provider === 'google') {
+      w.document.write(`
+        <html>
+        <head>
+          <title>Sign in with Google</title>
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+          <style>
+            body { background: #121212; color: #fff; font-family: sans-serif; text-align: center; padding: 40px 20px; }
+            .google-logo { font-size: 3rem; margin-bottom: 20px; color: #ea4335; }
+            .input-box { width: 85%; padding: 12px; margin: 10px 0; border: 1px solid #333; background: #222; color: #fff; border-radius: 5px; font-size: 1rem; outline: none; }
+            .input-box:focus { border-color: #ea4335; }
+            .btn { width: 90%; padding: 12px; background: #ea4335; color: #fff; border: none; border-radius: 5px; font-size: 1rem; cursor: pointer; font-weight: bold; margin-top: 15px; }
+            .btn:hover { background: #d33828; }
+          </style>
+        </head>
+        <body>
+          <i class="fab fa-google google-logo"></i>
+          <h2>Sign in with Google</h2>
+          <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 30px;">to continue to ALERT SERVICES</p>
+          <input type="text" id="g-name" class="input-box" placeholder="Your Full Name">
+          <input type="email" id="g-email" class="input-box" placeholder="Your Email Address">
+          <button class="btn" onclick="submit()">Continue</button>
+          <script>
+            function submit() {
+              const name = document.getElementById('g-name').value.trim();
+              const email = document.getElementById('g-email').value.trim();
+              if (!name || !email) { alert("Please fill in both fields!"); return; }
+              
+              const result = {
+                provider: 'google',
+                username: name,
+                email: email,
+                avatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=' + encodeURIComponent(name)
+              };
+              window.opener.postMessage({ type: 'auth_success', user: result }, '*');
+              window.close();
+            }
+          <\/script>
+        </body>
+        </html>
+      `);
+    } else if (provider === 'discord') {
+      w.document.write(`
+        <html>
+        <head>
+          <title>Discord Authorization</title>
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+          <style>
+            body { background: #313338; color: #dbdee1; font-family: sans-serif; text-align: center; padding: 40px 20px; }
+            .discord-logo { font-size: 3.5rem; margin-bottom: 20px; color: #5865F2; }
+            .input-box { width: 85%; padding: 12px; margin: 10px 0; border: 1px solid #202225; background: #1e1f22; color: #fff; border-radius: 5px; font-size: 1rem; outline: none; }
+            .input-box:focus { border-color: #5865F2; }
+            .btn { width: 90%; padding: 12px; background: #5865F2; color: #fff; border: none; border-radius: 5px; font-size: 1rem; cursor: pointer; font-weight: bold; margin-top: 15px; }
+            .btn:hover { background: #4752C4; }
+          </style>
+        </head>
+        <body>
+          <i class="fab fa-discord discord-logo"></i>
+          <h2>Discord Login</h2>
+          <p style="color: #b5bac1; font-size: 0.9rem; margin-bottom: 30px;">An application is requesting access to your account.</p>
+          <input type="text" id="d-name" class="input-box" placeholder="Your Discord Username">
+          <button class="btn" onclick="submit()">Authorize</button>
+          <script>
+            function submit() {
+              const name = document.getElementById('d-name').value.trim();
+              if (!name) { alert("Please enter your Discord username!"); return; }
+              
+              const result = {
+                provider: 'discord',
+                username: name,
+                avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=' + encodeURIComponent(name)
+              };
+              window.opener.postMessage({ type: 'auth_success', user: result }, '*');
+              window.close();
+            }
+          <\/script>
+        </body>
+        </html>
+      `);
+    } else if (provider === 'roblox') {
+      w.document.write(`
+        <html>
+        <head>
+          <title>Roblox Authorization</title>
+          <style>
+            body { background: #181818; color: #fff; font-family: sans-serif; text-align: center; padding: 40px 20px; }
+            .roblox-logo { font-size: 3rem; font-weight: 900; margin-bottom: 20px; color: #ff3e3e; text-transform: uppercase; font-family: Arial, sans-serif; }
+            .input-box { width: 85%; padding: 12px; margin: 10px 0; border: 1px solid #333; background: #252525; color: #fff; border-radius: 5px; font-size: 1rem; outline: none; }
+            .input-box:focus { border-color: #ff3e3e; }
+            .btn { width: 90%; padding: 12px; background: #0084ff; color: #fff; border: none; border-radius: 5px; font-size: 1rem; cursor: pointer; font-weight: bold; margin-top: 15px; }
+            .btn:hover { background: #0074e0; }
+          </style>
+        </head>
+        <body>
+          <div class="roblox-logo">ROBLOX</div>
+          <h2>Roblox Username Sign In</h2>
+          <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 30px;">Sign in to your Roblox account to post verified trades.</p>
+          <input type="text" id="r-name" class="input-box" placeholder="Your Roblox Username">
+          <button class="btn" onclick="submit()">Log In</button>
+          <script>
+            function submit() {
+              const name = document.getElementById('r-name').value.trim();
+              if (!name) { alert("Please enter your Roblox username!"); return; }
+              
+              const result = {
+                provider: 'roblox',
+                username: name,
+                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + encodeURIComponent(name)
+              };
+              window.opener.postMessage({ type: 'auth_success', user: result }, '*');
+              window.close();
+            }
+          <\/script>
+        </body>
+        </html>
+      `);
+    }
   };
+
+  // Listen to popup authentication results
+  window.addEventListener('message', (e) => {
+    if (e.data && e.data.type === 'auth_success') {
+      const user = e.data.user;
+      localStorage.setItem('alert_username', user.username);
+      localStorage.setItem('alert_user_session', JSON.stringify({
+        ...user,
+        loginTime: Date.now()
+      }));
+      window.closeModal();
+      location.reload();
+    }
+  });
 });
