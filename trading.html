@@ -250,6 +250,16 @@
             }
 
             function toggleReplyForm(tradeId) {
+              const savedUser = localStorage.getItem('alert_username');
+              if (!savedUser) {
+                if (window.openSignInModal) {
+                  window.openSignInModal();
+                } else {
+                  alert("You must be Signed In to reply to trades!");
+                }
+                return;
+              }
+              
               const form = document.getElementById(`reply-form-${tradeId}`);
               if (form) {
                 form.style.display = form.style.display === 'none' ? 'block' : 'none';
@@ -491,15 +501,66 @@
               }
             }
 
-            // Autofill username if signed in
+            // Lock and prefill trading form based on login status
             function fillUsernameOnLoad() {
               const savedUser = localStorage.getItem('alert_username');
+              const usernameInput = document.getElementById('trade-username');
+              const tradingInput = document.getElementById('trade-trading');
+              const lookingInput = document.getElementById('trade-looking');
+              const submitBtn = document.querySelector('form[onsubmit="postTrade(event)"] button[type="submit"]');
+              const form = document.querySelector('form[onsubmit="postTrade(event)"]');
+              
               if (savedUser) {
-                const usernameInput = document.getElementById('trade-username');
                 if (usernameInput) {
                   usernameInput.value = savedUser;
                   usernameInput.readOnly = true;
                   usernameInput.style.opacity = '0.7';
+                  usernameInput.placeholder = "";
+                }
+                if (tradingInput) {
+                  tradingInput.disabled = false;
+                  tradingInput.placeholder = "e.g. Kitsune, Perm Buddha";
+                }
+                if (lookingInput) {
+                  lookingInput.disabled = false;
+                  lookingInput.placeholder = "e.g. 2x Dragon, Tiger";
+                }
+                if (submitBtn) {
+                  submitBtn.innerHTML = 'Submit Post';
+                  submitBtn.disabled = false;
+                }
+              } else {
+                if (usernameInput) {
+                  usernameInput.value = "";
+                  usernameInput.readOnly = true;
+                  usernameInput.style.opacity = '0.5';
+                  usernameInput.placeholder = "Sign in required...";
+                }
+                if (tradingInput) {
+                  tradingInput.disabled = true;
+                  tradingInput.placeholder = "Please sign in first...";
+                }
+                if (lookingInput) {
+                  lookingInput.disabled = true;
+                  lookingInput.placeholder = "Please sign in first...";
+                }
+                if (submitBtn) {
+                  submitBtn.innerHTML = '<i class="fas fa-lock"></i> Sign In to Post Trade';
+                  submitBtn.disabled = false;
+                }
+                
+                if (form) {
+                  form.onclick = (e) => {
+                    const saved = localStorage.getItem('alert_username');
+                    if (!saved) {
+                      e.preventDefault();
+                      if (window.openSignInModal) {
+                        window.openSignInModal();
+                      } else {
+                        alert("Please sign in to post a trade!");
+                      }
+                    }
+                  };
                 }
               }
             }

