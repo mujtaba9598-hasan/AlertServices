@@ -49,15 +49,17 @@ body {
   min-height: 100vh;
   position: relative;
   scroll-behavior: smooth;
-  opacity: 0; /* Default invisible for fade-in */
+}
+
+body > *:not(.futuristic-loader) {
   transition: opacity 0.4s ease-in-out;
 }
 
-body.loaded {
-  opacity: 1;
+body:not(.loaded) > *:not(.futuristic-loader) {
+  opacity: 0;
 }
 
-body.fade-out {
+body.fade-out > *:not(.futuristic-loader) {
   opacity: 0;
 }
 
@@ -307,6 +309,88 @@ section {
   margin-bottom: 50px;
   color: var(--lime-green);
   text-shadow: 0 0 15px rgba(var(--lime-rgb), 0.3);
+}
+
+/* Loading Screen */
+.futuristic-loader {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-color: var(--bg-color);
+  z-index: 999999;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.5s ease;
+}
+
+.loader-spinner {
+  width: 60px;
+  height: 60px;
+  border: 3px solid transparent;
+  border-top: 3px solid var(--lime-green);
+  border-right: 3px solid var(--lime-green);
+  border-radius: 50%;
+  animation: spinLoader 1s linear infinite, pulseGlow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes spinLoader {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 5px rgba(var(--lime-rgb), 0.2), inset 0 0 5px rgba(var(--lime-rgb), 0.2); }
+  100% { box-shadow: 0 0 25px rgba(var(--lime-rgb), 0.8), inset 0 0 15px rgba(var(--lime-rgb), 0.5); }
+}
+
+/* Theme Sweep View Transition */
+.theme-sweep-transition::view-transition-group(root) {
+  animation-duration: 0.3s;
+}
+
+.theme-sweep-transition::view-transition-old(root) {
+  animation: none;
+  z-index: 1;
+}
+
+.theme-sweep-transition::view-transition-new(root) {
+  animation: sweep-right-to-left 0.3s ease-in-out;
+  z-index: 2;
+}
+
+@keyframes sweep-right-to-left {
+  0% {
+    clip-path: inset(0 0 0 100%);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Exclude matrix canvas from view transition capture so it doesn't freeze */
+#matrix-canvas {
+  view-transition-name: matrix-canvas;
+}
+
+/* Keep live canvas visible and painting in real-time during transitions */
+#matrix-canvas {
+  visibility: visible !important;
+}
+
+::view-transition-group(matrix-canvas) {
+  display: none !important;
+}
+::view-transition-old(matrix-canvas),
+::view-transition-new(matrix-canvas) {
+  display: none !important;
+}
+
+/* Fallback Smooth Theme Transition */
+body.theme-transition,
+body.theme-transition * {
+  transition: background-color 0.8s ease, color 0.8s ease, border-color 0.8s ease, box-shadow 0.8s ease, text-shadow 0.8s ease, filter 0.8s ease !important;
 }
 
 /* Hero Section */

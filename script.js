@@ -402,10 +402,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-  // Page Transition Fade Effect
-  setTimeout(() => {
-    document.body.classList.add('loaded');
-  }, 50);
+  // Futuristic Loading Screen & Page Transition Fade Effect
+  // Futuristic Loading Screen & Page Transition Fade Effect
+  if (!sessionStorage.getItem('hasLoadedBefore')) {
+    const loader = document.createElement('div');
+    loader.className = 'futuristic-loader';
+    loader.innerHTML = `
+      <div class="loader-content" style="text-align: center;">
+        <div class="loader-spinner" style="margin: 0 auto;"></div>
+        <h2 style="color: var(--lime-green); font-family: 'Orbitron', sans-serif; letter-spacing: 3px; margin-top: 20px; text-shadow: 0 0 10px rgba(var(--lime-rgb), 0.5);">INITIALIZING</h2>
+      </div>
+    `;
+    document.body.appendChild(loader);
+    document.body.style.overflow = 'hidden';
+
+    setTimeout(() => {
+      loader.style.opacity = '0';
+      setTimeout(() => {
+        loader.remove();
+        document.body.style.overflow = '';
+        document.body.classList.add('loaded');
+      }, 500);
+      sessionStorage.setItem('hasLoadedBefore', 'true');
+    }, 1000);
+  } else {
+    setTimeout(() => {
+      document.body.classList.add('loaded');
+    }, 50);
+  }
 
   document.querySelectorAll('a').forEach(link => {
     link.addEventListener('click', function(e) {
@@ -444,15 +468,11 @@ window.rollDice = function() {
   
   setTimeout(() => {
     dice.style.transform = '';
-    
-    // Add transition class for smooth color change
-    document.body.classList.add('theme-transition');
-    
+  }, 500);
+  
+  function performThemeSwap() {
     let unlocked = JSON.parse(localStorage.getItem('unlockedAchievements') || '[]');
-    let availableThemes = ['default'];
-    if (unlocked.includes('default')) {} // Just to structure it, blue is always available? Wait, blue was always available in original code: ['default', 'blue-theme'].
-    // Let's add them conditionally or explicitly in order.
-    availableThemes.push('blue-theme');
+    let availableThemes = ['default', 'blue-theme'];
     if (unlocked.includes('dice_hunter')) availableThemes.push('red-theme');
     if (unlocked.includes('generous_spirit')) availableThemes.push('gold-theme');
     if (unlocked.includes('theme_master')) availableThemes.push('purple-theme');
@@ -462,7 +482,6 @@ window.rollDice = function() {
     if (unlocked.includes('voidwalker')) availableThemes.push('voidwalker-theme');
     if (JSON.parse(localStorage.getItem('alert_stats') || '{}').balancedUnlocked) availableThemes.push('balanced-theme');
     
-    // Find current theme
     let currentThemeName = 'default';
     for (let i = 1; i < allThemes.length; i++) {
       if (document.body.classList.contains(allThemes[i])) {
@@ -471,12 +490,10 @@ window.rollDice = function() {
       }
     }
     
-    // Remove current theme
     if (currentThemeName !== 'default') {
       document.body.classList.remove(currentThemeName);
     }
     
-    // Apply next theme
     let currentIndex = availableThemes.indexOf(currentThemeName);
     if (currentIndex === -1) currentIndex = 0;
     const nextTheme = availableThemes[(currentIndex + 1) % availableThemes.length];
@@ -488,13 +505,26 @@ window.rollDice = function() {
     localStorage.setItem('theme', nextTheme);
     if (window.incrementThemeChanges) window.incrementThemeChanges();
     window.AudioEngine.updateTheme(nextTheme);
-    
-    // Remove transition class after 1s to not interfere with hover states
+  }
+  
+  // Check if View Transition API is supported
+  if (!document.startViewTransition) {
+    // Fallback transition
+    document.body.classList.add('theme-transition');
+    performThemeSwap();
     setTimeout(() => {
       document.body.classList.remove('theme-transition');
     }, 1000);
-    
-  }, 500);
+  } else {
+    // Use Modern View Transitions for spatial sweep
+    document.documentElement.classList.add('theme-sweep-transition');
+    const transition = document.startViewTransition(() => {
+      performThemeSwap();
+    });
+    transition.finished.then(() => {
+      document.documentElement.classList.remove('theme-sweep-transition');
+    });
+  }
 };
 
 // Check for saved theme on load
@@ -890,6 +920,9 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   document.addEventListener("keydown", (e) => {
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) {
+      return;
+    }
     if (e.key && e.key.length === 1) {
       secretBuffer += e.key.toLowerCase();
       checkEasterEggBuffer();
@@ -898,9 +931,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Support for mobile virtual keyboards in input fields (like Trading hub)
   document.addEventListener("input", (e) => {
-    if (e.data && e.data.length === 1) {
-      secretBuffer += e.data.toLowerCase();
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) {
+      secretBuffer = e.target.value.toLowerCase();
       checkEasterEggBuffer();
+    } else {
+      if (e.data && e.data.length === 1) {
+        secretBuffer += e.data.toLowerCase();
+        checkEasterEggBuffer();
+      }
     }
   });
 
