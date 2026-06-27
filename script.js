@@ -252,6 +252,8 @@ window.AudioEngine = (function() {
 })();
 
 // Hook up global clicks to init audio (browsers require user interaction)
+let isRippleEnabled = localStorage.getItem('rippleEnabled') !== 'false';
+
 document.addEventListener('click', () => {
   window.AudioEngine.init();
 }, { once: true });
@@ -400,6 +402,51 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Touch Ripple Effect
+  const createTouchRipple = (x, y) => {
+    const isBalanced = document.body.classList.contains('balanced-theme');
+    const isVoidwalker = document.body.classList.contains('voidwalker-theme');
+    
+    for (let i = 0; i < 3; i++) {
+      const ripple = document.createElement('div');
+      ripple.className = `touch-ripple ripple-layer-${i + 1}`;
+      ripple.style.left = `${x}px`;
+      ripple.style.top = `${y}px`;
+      
+      const delay = i * 0.05; // 0s, 0.05s, 0.1s delay for wave effect
+      ripple.style.animationDelay = `${delay}s`;
+      
+      // Theme overrides
+      if (isBalanced) {
+        // Alternating black and white layers for Yin-Yang theme
+        if (i % 2 === 0) {
+          ripple.style.borderColor = '#ffffff';
+          ripple.style.background = 'radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 70%)';
+        } else {
+          ripple.style.borderColor = '#000000';
+          ripple.style.background = 'radial-gradient(circle, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0) 70%)';
+        }
+      } else if (isVoidwalker) {
+        ripple.style.borderColor = 'var(--lime-green)';
+        ripple.style.background = 'radial-gradient(circle, rgba(192, 160, 255, 0.35) 0%, rgba(192, 160, 255, 0) 70%)';
+      }
+      
+      document.body.appendChild(ripple);
+      
+      // Calculate duration + delay to clean up elements correctly
+      const duration = i === 0 ? 400 : (i === 1 ? 350 : 300);
+      setTimeout(() => {
+        ripple.remove();
+      }, duration + delay * 1000 + 50);
+    }
+  };
+
+  document.addEventListener('click', (e) => {
+    if (isRippleEnabled) {
+      createTouchRipple(e.pageX, e.pageY);
+    }
+  });
+
 
 
   // Futuristic Loading Screen & Page Transition Fade Effect
@@ -456,18 +503,27 @@ document.addEventListener('DOMContentLoaded', () => {
 const allThemes = ['default', 'blue-theme', 'red-theme', 'gold-theme', 'purple-theme', 'emerald-theme', 'crimson-theme', 'white-theme', 'voidwalker-theme', 'balanced-theme'];
 
 // Easter Egg Logic (Theme Toggle)
+let activeThemeTransitions = 0;
+let activeSweepTransitions = 0;
+let diceRotation = 0;
+let lastRollId = 0;
+
 window.rollDice = function() {
   const dice = document.querySelector('.easter-egg-dice i');
   if (!dice) return;
   
   if (window.trackDiceFound) window.trackDiceFound('topR');
   
-  // Spin the dice
-  dice.style.transform = 'rotate(720deg) scale(1.5)';
+  // Spin the dice continuously on rapid clicks
+  diceRotation += 720;
+  dice.style.transform = `rotate(${diceRotation}deg) scale(1.5)`;
   window.AudioEngine.playSFX('dice');
   
+  let currentRollId = ++lastRollId;
   setTimeout(() => {
-    dice.style.transform = '';
+    if (lastRollId === currentRollId) {
+      dice.style.transform = `rotate(${diceRotation}deg) scale(1)`;
+    }
   }, 500);
   
   function performThemeSwap() {
@@ -510,19 +566,27 @@ window.rollDice = function() {
   // Check if View Transition API is supported
   if (!document.startViewTransition) {
     // Fallback transition
+    activeThemeTransitions++;
     document.body.classList.add('theme-transition');
     performThemeSwap();
     setTimeout(() => {
-      document.body.classList.remove('theme-transition');
+      activeThemeTransitions--;
+      if (activeThemeTransitions === 0) {
+        document.body.classList.remove('theme-transition');
+      }
     }, 1000);
   } else {
     // Use Modern View Transitions for spatial sweep
+    activeSweepTransitions++;
     document.documentElement.classList.add('theme-sweep-transition');
     const transition = document.startViewTransition(() => {
       performThemeSwap();
     });
     transition.finished.then(() => {
-      document.documentElement.classList.remove('theme-sweep-transition');
+      activeSweepTransitions--;
+      if (activeSweepTransitions === 0) {
+        document.documentElement.classList.remove('theme-sweep-transition');
+      }
     });
   }
 };
@@ -546,6 +610,11 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- NEW LOGIC: Stats, Achievements, Modals, Performance ---
 document.addEventListener('DOMContentLoaded', () => {
   // 1. Inject New Elements
+  if (!document.querySelector('.easter-egg-dice')) {
+    const themeDiceHtml = `<div class="easter-egg-dice" onclick="rollDice()"><i class="fas fa-dice-d20"></i></div>`;
+    document.body.insertAdjacentHTML('afterbegin', themeDiceHtml);
+  }
+
   const perfDiceHtml = `<div class="dice-btn perf-dice" title="Settings"><i class="fas fa-dice-d20"></i></div>`;
   const achDiceHtml = `<div class="dice-btn footer-dice-left" title="Achievements"><i class="fas fa-dice-d20"></i></div>`;
   const statsDiceHtml = `<div class="dice-btn footer-dice-right" title="Stats"><i class="fas fa-dice-d20"></i></div>`;
@@ -659,6 +728,13 @@ document.addEventListener('DOMContentLoaded', () => {
             <span class="slider"></span>
           </label>
         </div>
+        <div class="settings-row">
+          <span>Touch Ripple Effect</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggleRipple" ${isRippleEnabled ? 'checked' : ''}>
+            <span class="slider"></span>
+          </label>
+        </div>
       </div>
     `;
     
@@ -685,6 +761,12 @@ document.addEventListener('DOMContentLoaded', () => {
     
     document.getElementById('toggleBGM').addEventListener('change', (e) => {
       window.AudioEngine.toggleBGM(e.target.checked);
+      window.AudioEngine.playSFX('click');
+    });
+
+    document.getElementById('toggleRipple').addEventListener('change', (e) => {
+      isRippleEnabled = e.target.checked;
+      localStorage.setItem('rippleEnabled', isRippleEnabled);
       window.AudioEngine.playSFX('click');
     });
   });
@@ -1056,9 +1138,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     saveStats();
     
-    const wrapper = document.createElement('div');
-    wrapper.id = 'matrix-wrapper';
-    
     const canvas = document.createElement('canvas');
     canvas.id = 'matrix-canvas';
     canvas.style.position = 'fixed';
@@ -1068,9 +1147,7 @@ document.addEventListener('DOMContentLoaded', () => {
     canvas.style.height = '100vh';
     canvas.style.zIndex = '-1';
     canvas.style.pointerEvents = 'none';
-    
-    wrapper.appendChild(canvas);
-    document.body.appendChild(wrapper);
+    document.body.appendChild(canvas);
 
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
@@ -1106,7 +1183,7 @@ document.addEventListener('DOMContentLoaded', () => {
       clearInterval(interval);
       canvas.style.transition = 'opacity 2s ease';
       canvas.style.opacity = '0';
-      setTimeout(() => wrapper.remove(), 2000);
+      setTimeout(() => canvas.remove(), 2000);
     }, 30000);
   };
 

@@ -346,10 +346,6 @@ section {
 }
 
 /* Theme Sweep View Transition */
-::view-transition {
-  pointer-events: none;
-}
-
 .theme-sweep-transition::view-transition-group(root) {
   animation-duration: 2s;
 }
@@ -371,24 +367,6 @@ section {
   100% {
     clip-path: inset(0 0 0 0);
   }
-}
-
-/* Exclude matrix wrapper from view transition capture so it doesn't freeze */
-#matrix-wrapper {
-  view-transition-name: matrix-wrapper;
-}
-
-/* Keep live canvas visible and painting in real-time during transitions (overrides parent visibility: hidden) */
-#matrix-canvas {
-  visibility: visible !important;
-}
-
-::view-transition-group(matrix-wrapper) {
-  display: none !important;
-}
-::view-transition-old(matrix-wrapper),
-::view-transition-new(matrix-wrapper) {
-  display: none !important;
 }
 
 /* Fallback Smooth Theme Transition */
@@ -1596,4 +1574,63 @@ body.no-logo-effects .logo-wrapper .logo-img {
 .cta-btn i {
   margin-right: 3px;
   font-size: 0.9rem;
+}
+
+/* Touch Ripple Effect */
+.touch-ripple {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(circle, rgba(var(--lime-rgb), 0.3) 0%, rgba(var(--lime-rgb), 0) 70%);
+  border: 2px solid var(--lime-green);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 999999;
+  transform: translate(-50%, -50%);
+}
+
+.touch-ripple.ripple-layer-1 {
+  animation: expandRippleLayer1 0.4s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+  border-width: 2px;
+}
+.touch-ripple.ripple-layer-2 {
+  animation: expandRippleLayer2 0.35s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+  border-width: 1.5px;
+}
+.touch-ripple.ripple-layer-3 {
+  animation: expandRippleLayer3 0.3s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+  border-width: 1px;
+}
+
+@keyframes expandRippleLayer1 {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(5);
+    opacity: 0;
+  }
+}
+
+@keyframes expandRippleLayer2 {
+  0% {
+    transform: translate(-50%, -50%) scale(0.3);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(3.5);
+    opacity: 0;
+  }
+}
+
+@keyframes expandRippleLayer3 {
+  0% {
+    transform: translate(-50%, -50%) scale(0.2);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2);
+    opacity: 0;
+  }
 }

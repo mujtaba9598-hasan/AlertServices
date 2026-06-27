@@ -8,63 +8,92 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-  <!-- Easter Egg Dice -->
-  <div class="easter-egg-dice" onclick="rollDice()">
-    <i class="fas fa-dice-d20"></i>
-  </div>
-
   <!-- Navigation -->
   <nav>
     <a class='logo' href='index.html'><span class="logo-wrapper nav-logo"><img src="assets/images/logo.jpg" alt="ALERT SERVICES Logo" class="logo-img"></span>ALERT SERVICES</a>
+    <div class="menu-toggle"><i class="fas fa-bars"></i></div>
     <ul class="nav-links">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="trading.html">Trading Hub</a></li>
-      <li><a href="calculator.html">Calculator</a></li>
+      <li><a href='index.html'>Home</a></li>
+      <li class="dropdown">
+        <a href="#">Services <i class="fas fa-caret-down"></i></a>
+        <ul class="dropdown-menu">
+          <li><a href='raids.html'>Raids</a></li>
+          <li><a href='trials.html'>V4 Trials</a></li>
+          <li><a href='sea-events.html'>Sea Events</a></li>
+          <li><a href='pvp-training.html'>PvP</a></li>
+          <li><a href='grinding.html'>Grinding</a></li>
+          <li><a href='titles.html'>Titles</a></li>
+        </ul>
+      </li>
+      <li><a href='trading.html'>Trading</a></li>
+      <li><a href='calculator.html'>Calculator</a></li>
+      <li><a href='why-us.html'>Why Us</a></li>
+      <li><a href='about.html'>About Us</a></li>
+      <li><a href='contact.html'>Contact</a></li>
     </ul>
   </nav>
   <div class="status-indicator">
     <span class="status-dot available"></span> Available
   </div>
 
-  <div class="container fade-in" style="margin-top: 40px; max-width: 800px; margin-left: auto; margin-right: auto; padding: 20px;">
-    <h1 class="section-title" style="color: var(--lime-green); text-shadow: 0 0 15px rgba(var(--lime-rgb), 0.4); margin-bottom: 30px;">HINTS & SECRETS</h1>
+  <div class="container fade-in" style="margin-top: 40px; max-width: 800px; margin-left: auto; margin-right: auto; padding: 0 20px;">
+    <h1 style="text-align: center; color: var(--lime-green); text-shadow: 0 0 20px rgba(var(--lime-rgb), 0.6); font-size: 2.5rem; margin-bottom: 30px;">Secret Found!</h1>
     
-    <div class="card" style="text-align: left; border-color: var(--lime-green); box-shadow: 0 0 30px rgba(var(--lime-rgb), 0.15); padding: 40px 30px; margin-bottom: 40px;">
-      <h3 style="color: var(--lime-green); margin-bottom: 20px; font-size: 1.5rem; text-align: center;">
-        <i class="fas fa-key" style="margin-right: 10px;"></i> Decipher the Codes
+    <div class="card" style="text-align: center; border-color: var(--lime-green); box-shadow: 0 0 30px rgba(var(--lime-rgb), 0.2); margin-bottom: 40px;">
+      <i class="fas fa-dice-d20" style="font-size: 4rem; color: var(--lime-green); margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(var(--lime-rgb), 0.5));"></i>
+      <h3>You clicked the hidden dice!</h3>
+      <p style="margin-bottom: 20px; font-size: 1.15rem;">Open a ticket in our Discord and mention code: <strong>DICE-LUCK-777</strong> to get a secret 5% discount on your next order!</p>
+      <a href="contact.html" class="btn btn-secondary">Claim Discount</a>
+    </div>
+
+    <div class="card" style="border-color: var(--lime-green); box-shadow: var(--border-glow); text-align: left;">
+      <h3 style="color: var(--lime-green); margin-bottom: 15px; font-size: 1.5rem; border-bottom: 1px solid rgba(var(--lime-rgb), 0.2); padding-bottom: 10px;">
+        <i class="fas fa-terminal" style="font-size: 1.5rem; margin-right: 10px;"></i> Hidden Transmissions
       </h3>
-      <p style="color: var(--text-muted); margin-bottom: 25px; font-size: 1.1rem; line-height: 1.6; text-align: center;">
-        Type the bolded keywords anywhere on the site, or perform the actions described, to unlock secret themes, achievements, and statistics.
+      <p style="color: var(--text-muted); font-size: 1.05rem; margin-bottom: 20px; line-height: 1.6;">
+        Our systems have intercepted several encrypted fragments. Type these cryptic phrases anywhere on the website to initiate hidden protocols:
       </p>
-      
-      <div style="display: flex; flex-direction: column; gap: 15px; font-size: 1.2rem;">
-        <div style="padding: 15px; background: rgba(255,255,255,0.02); border-left: 3px solid var(--lime-green); border-radius: 4px;">
-          I'm <strong style="color: var(--lime-green);">alerted</strong> of every move you'll make.
-        </div>
-        <div style="padding: 15px; background: rgba(255,255,255,0.02); border-left: 3px solid var(--lime-green); border-radius: 4px;">
-          Initialize the <strong style="color: var(--lime-green);">bounty</strong> hunter protocol.
-        </div>
-        <div style="padding: 15px; background: rgba(255,255,255,0.02); border-left: 3px solid var(--lime-green); border-radius: 4px;">
-          Refine your reflexes to <strong style="color: var(--lime-green);">dodge</strong> incoming attacks.
-        </div>
-        <div style="padding: 15px; background: rgba(255,255,255,0.02); border-left: 3px solid var(--lime-green); border-radius: 4px;">
-          Listen to the <strong style="color: var(--lime-green);">sea</strong> beast rumble.
-        </div>
-        <div style="padding: 15px; background: rgba(255,255,255,0.02); border-left: 3px solid var(--lime-green); border-radius: 4px;">
-          Uncover your hidden status <strong style="color: var(--lime-green);">title</strong>.
-        </div>
-        <div style="padding: 15px; background: rgba(255,255,255,0.02); border-left: 3px solid var(--lime-green); border-radius: 4px;">
-          Intercept a private developer discord <strong style="color: var(--lime-green);">leak</strong>.
-        </div>
-        <div style="padding: 15px; background: rgba(255,255,255,0.02); border-left: 3px solid var(--lime-green); border-radius: 4px;">
-          Repeatedly click the brand logo to <strong style="color: var(--lime-green);">overload</strong> the system.
-        </div>
-        <div style="padding: 15px; background: rgba(255,255,255,0.02); border-left: 3px solid var(--lime-green); border-radius: 4px;">
-          A hidden developer <strong style="color: var(--lime-green);">admin</strong> console sits at the bottom right corner of the page.
-        </div>
-      </div>
+      <ul style="list-style: none; padding-left: 0; font-size: 1.1rem; line-height: 1.8;">
+        <li style="margin-bottom: 15px; padding-left: 25px; position: relative;">
+          <span style="color: var(--lime-green); position: absolute; left: 0;"><i class="fas fa-angle-right"></i></span>
+          "I'm <strong style="color: var(--lime-green); text-shadow: 0 0 8px rgba(var(--lime-rgb), 0.6);">Alerted</strong> of every move you'll make."
+        </li>
+        <li style="margin-bottom: 15px; padding-left: 25px; position: relative;">
+          <span style="color: var(--text-muted); position: absolute; left: 0;"><i class="fas fa-angle-right"></i></span>
+          "A hunter is always seeking their next bounty."
+        </li>
+        <li style="margin-bottom: 15px; padding-left: 25px; position: relative;">
+          <span style="color: var(--text-muted); position: absolute; left: 0;"><i class="fas fa-angle-right"></i></span>
+          "Can you dodge the cursor's path?"
+        </li>
+        <li style="margin-bottom: 15px; padding-left: 25px; position: relative;">
+          <span style="color: var(--text-muted); position: absolute; left: 0;"><i class="fas fa-angle-right"></i></span>
+          "The sea holds secrets that shake the earth."
+        </li>
+        <li style="margin-bottom: 15px; padding-left: 25px; position: relative;">
+          <span style="color: var(--text-muted); position: absolute; left: 0;"><i class="fas fa-angle-right"></i></span>
+          "Every legend must earn their true title."
+        </li>
+        <li style="margin-bottom: 15px; padding-left: 25px; position: relative;">
+          <span style="color: var(--text-muted); position: absolute; left: 0;"><i class="fas fa-angle-right"></i></span>
+          "Be careful of information that might leak out."
+        </li>
+        <li style="margin-bottom: 15px; padding-left: 25px; position: relative;">
+          <span style="color: var(--text-muted); position: absolute; left: 0;"><i class="fas fa-angle-right"></i></span>
+          "True mastery comes when light and dark are balanced."
+        </li>
+      </ul>
     </div>
   </div>
+
+  <!-- Footer -->
+  <footer style="margin-top: 80px;">
+    <span class="logo-wrapper footer-logo"><img src="assets/images/logo.jpg" alt="ALERT SERVICES Logo" class="logo-img"></span>
+    <p style="color: var(--lime-green); margin-bottom: 15px; font-weight: bold; font-size: 1.1rem;">
+      <i class="fas fa-undo-alt"></i> Refund Policy: 100% Refunds available up to 12 hours after payment.
+    </p>
+    <p>&copy; 2026 ALERT SERVICES. Not affiliated with Roblox or Gamer Robot Inc.</p>
+  </footer>
 
   <script src="script.js"></script>
 </body>

@@ -865,6 +865,9 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   document.addEventListener("keydown", (e) => {
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) {
+      return;
+    }
     if (e.key && e.key.length === 1) {
       secretBuffer += e.key.toLowerCase();
       checkEasterEggBuffer();
@@ -873,9 +876,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Support for mobile virtual keyboards in input fields (like Trading hub)
   document.addEventListener("input", (e) => {
-    if (e.data && e.data.length === 1) {
-      secretBuffer += e.data.toLowerCase();
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) {
+      secretBuffer = e.target.value.toLowerCase();
       checkEasterEggBuffer();
+    } else {
+      if (e.data && e.data.length === 1) {
+        secretBuffer += e.data.toLowerCase();
+        checkEasterEggBuffer();
+      }
     }
   });
 
