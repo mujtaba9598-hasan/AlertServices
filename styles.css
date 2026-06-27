@@ -346,8 +346,12 @@ section {
 }
 
 /* Theme Sweep View Transition */
+::view-transition {
+  pointer-events: none;
+}
+
 .theme-sweep-transition::view-transition-group(root) {
-  animation-duration: 0.3s;
+  animation-duration: 2s;
 }
 
 .theme-sweep-transition::view-transition-old(root) {
@@ -356,7 +360,7 @@ section {
 }
 
 .theme-sweep-transition::view-transition-new(root) {
-  animation: sweep-right-to-left 0.3s ease-in-out;
+  animation: sweep-right-to-left 2s ease-in-out;
   z-index: 2;
 }
 
@@ -369,21 +373,21 @@ section {
   }
 }
 
-/* Exclude matrix canvas from view transition capture so it doesn't freeze */
-#matrix-canvas {
-  view-transition-name: matrix-canvas;
+/* Exclude matrix wrapper from view transition capture so it doesn't freeze */
+#matrix-wrapper {
+  view-transition-name: matrix-wrapper;
 }
 
-/* Keep live canvas visible and painting in real-time during transitions */
+/* Keep live canvas visible and painting in real-time during transitions (overrides parent visibility: hidden) */
 #matrix-canvas {
   visibility: visible !important;
 }
 
-::view-transition-group(matrix-canvas) {
+::view-transition-group(matrix-wrapper) {
   display: none !important;
 }
-::view-transition-old(matrix-canvas),
-::view-transition-new(matrix-canvas) {
+::view-transition-old(matrix-wrapper),
+::view-transition-new(matrix-wrapper) {
   display: none !important;
 }
 

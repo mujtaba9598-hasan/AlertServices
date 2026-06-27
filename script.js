@@ -1056,6 +1056,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     saveStats();
     
+    const wrapper = document.createElement('div');
+    wrapper.id = 'matrix-wrapper';
+    
     const canvas = document.createElement('canvas');
     canvas.id = 'matrix-canvas';
     canvas.style.position = 'fixed';
@@ -1065,7 +1068,9 @@ document.addEventListener('DOMContentLoaded', () => {
     canvas.style.height = '100vh';
     canvas.style.zIndex = '-1';
     canvas.style.pointerEvents = 'none';
-    document.body.appendChild(canvas);
+    
+    wrapper.appendChild(canvas);
+    document.body.appendChild(wrapper);
 
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
@@ -1101,7 +1106,7 @@ document.addEventListener('DOMContentLoaded', () => {
       clearInterval(interval);
       canvas.style.transition = 'opacity 2s ease';
       canvas.style.opacity = '0';
-      setTimeout(() => canvas.remove(), 2000);
+      setTimeout(() => wrapper.remove(), 2000);
     }, 30000);
   };
 
