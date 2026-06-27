@@ -1579,58 +1579,60 @@ body.no-logo-effects .logo-wrapper .logo-img {
 /* Touch Ripple Effect */
 .touch-ripple {
   position: absolute;
-  width: 10px;
-  height: 10px;
-  background: radial-gradient(circle, rgba(var(--lime-rgb), 0.3) 0%, rgba(var(--lime-rgb), 0) 70%);
-  border: 2px solid var(--lime-green);
+  width: 12px;
+  height: 12px;
+  background: radial-gradient(circle, rgba(var(--lime-rgb), 0.15) 0%, rgba(var(--lime-rgb), 0) 80%);
+  border: 1.5px solid var(--lime-green);
   border-radius: 50%;
   pointer-events: none;
   z-index: 999999;
-  transform: translate(-50%, -50%);
+  box-shadow: 0 0 8px rgba(var(--lime-rgb), 0.3);
+  transform: translate3d(-50%, -50%, 0);
+  will-change: transform, opacity;
 }
 
 .touch-ripple.ripple-layer-1 {
-  animation: expandRippleLayer1 0.4s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
-  border-width: 2px;
-}
-.touch-ripple.ripple-layer-2 {
-  animation: expandRippleLayer2 0.35s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+  animation: expandRippleLayer1 0.45s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
   border-width: 1.5px;
 }
-.touch-ripple.ripple-layer-3 {
-  animation: expandRippleLayer3 0.3s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+.touch-ripple.ripple-layer-2 {
+  animation: expandRippleLayer2 0.4s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
   border-width: 1px;
+}
+.touch-ripple.ripple-layer-3 {
+  animation: expandRippleLayer3 0.35s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+  border-width: 0.5px;
 }
 
 @keyframes expandRippleLayer1 {
   0% {
-    transform: translate(-50%, -50%) scale(0.5);
+    transform: translate3d(-50%, -50%, 0) scale(0.3);
     opacity: 1;
   }
   100% {
-    transform: translate(-50%, -50%) scale(5);
+    transform: translate3d(-50%, -50%, 0) scale(4);
     opacity: 0;
   }
 }
 
 @keyframes expandRippleLayer2 {
   0% {
-    transform: translate(-50%, -50%) scale(0.3);
+    transform: translate3d(-50%, -50%, 0) scale(0.2);
     opacity: 1;
   }
   100% {
-    transform: translate(-50%, -50%) scale(3.5);
+    transform: translate3d(-50%, -50%, 0) scale(2.8);
     opacity: 0;
   }
 }
 
 @keyframes expandRippleLayer3 {
   0% {
-    transform: translate(-50%, -50%) scale(0.2);
+    transform: translate3d(-50%, -50%, 0) scale(0.1);
     opacity: 1;
   }
   100% {
-    transform: translate(-50%, -50%) scale(2);
+    transform: translate3d(-50%, -50%, 0) scale(1.6);
     opacity: 0;
   }
 }

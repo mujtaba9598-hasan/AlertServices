@@ -421,20 +421,23 @@ document.addEventListener('DOMContentLoaded', () => {
         // Alternating black and white layers for Yin-Yang theme
         if (i % 2 === 0) {
           ripple.style.borderColor = '#ffffff';
-          ripple.style.background = 'radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 70%)';
+          ripple.style.background = 'radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 80%)';
+          ripple.style.boxShadow = '0 0 8px rgba(255, 255, 255, 0.4)';
         } else {
           ripple.style.borderColor = '#000000';
-          ripple.style.background = 'radial-gradient(circle, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0) 70%)';
+          ripple.style.background = 'radial-gradient(circle, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0) 80%)';
+          ripple.style.boxShadow = '0 0 8px rgba(0, 0, 0, 0.4)';
         }
       } else if (isVoidwalker) {
         ripple.style.borderColor = 'var(--lime-green)';
-        ripple.style.background = 'radial-gradient(circle, rgba(192, 160, 255, 0.35) 0%, rgba(192, 160, 255, 0) 70%)';
+        ripple.style.background = 'radial-gradient(circle, rgba(192, 160, 255, 0.15) 0%, rgba(192, 160, 255, 0) 80%)';
+        ripple.style.boxShadow = '0 0 8px rgba(192, 160, 255, 0.4)';
       }
       
       document.body.appendChild(ripple);
       
       // Calculate duration + delay to clean up elements correctly
-      const duration = i === 0 ? 400 : (i === 1 ? 350 : 300);
+      const duration = i === 0 ? 450 : (i === 1 ? 400 : 350);
       setTimeout(() => {
         ripple.remove();
       }, duration + delay * 1000 + 50);
